@@ -1,0 +1,149 @@
+@font-face {
+  font-family: "Gilroy-Regular";
+  src: url("./assets/fonts/Gilroy-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+:root {
+  --primary-background-color: #141414;
+  --primary-text-color: #f9f9f9;
+
+  --primary-color-grey: #686868;
+  --primary-color-green: #30b94d;
+  --primary-color-blue: #4f92f7;
+
+  --secondary-color-2: #262626;
+  --secondary-color-3: #1f1f1f;
+
+  --font-family: "Gilroy-Regular", sans-serif;
+  /* Breakpoints */
+  --breakpoint-mobile: 320px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1440px;
+
+  --spacing-base: 14px;
+  --font-size-base: 14px;
+}
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: var(--font-family, Arial, sans-serif);
+  font-size: var(--font-size-base);
+  line-height: 1;
+  color: var(--primary-text-color, #f9f9f9);
+  background-color: var(--primary-background-color, #141414);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-width: 100%;
+  min-height: 100vh;
+}
+a,
+button {
+  transition: all 0.3s ease-in-out;
+  text-decoration: none;
+}
+a {
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--primary-text-color);
+}
+a:hover {
+  color: var(--primary-color-grey);
+  cursor: pointer;
+}
+button:hover {
+  cursor: pointer;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+h1 {
+  font-weight: 700;
+  font-size: 2.25rem;
+  color: var(--primary-text-color);
+}
+
+h2 {
+  font-weight: 600;
+  font-size: 1.875rem;
+}
+
+p {
+  font-size: 14px;
+}
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+ul,
+ol {
+  list-style-type: none;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-base);
+}
+
+main {
+  flex: 1;
+  padding: var(--spacing-base);
+}
+input[type="file"] {
+  display: none;
+}
+
+input {
+  background-color: transparent;
+}
+@media (max-width: var(--breakpoint-mobile)) {
+  :root {
+    --font-size-base: 8px;
+  }
+
+  .header,
+  .footer {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: var(--breakpoint-tablet)) {
+  :root {
+    --font-size-base: 16px;
+    --spacing-base: 12px;
+  }
+
+  .container {
+    padding: 0 calc(var(--spacing-base) / 2);
+  }
+
+  .header,
+  .footer {
+    text-align: left;
+  }
+}
+
+@media (min-width: var(--breakpoint-desktop)) {
+  body {
+    font-size: 16px;
+  }
+
+  .container {
+    max-width: 1140px;
+    padding: 32px;
+  }
+}
