@@ -18,4 +18,13 @@
   </defs>
 
 </symbol>
+<symbol id="burger" viewBox="0 0 28 28">
+  <path stroke="#F9F9F9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.5 14h21m-21-7h21m-14 14h14"/>
+</symbol>
+
+<symbol id="arrow" viewBox="0 0 24 24">
+
+  <path stroke="#E3E3E3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14 17 5-5-5-5M19 12H5"/>
+
+</symbol>
 </svg>

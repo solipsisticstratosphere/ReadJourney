@@ -54,7 +54,7 @@ a {
   color: var(--primary-text-color);
 }
 a:hover {
-  color: var(--primary-color-grey);
+  color: var(--primary-text-color);
   cursor: pointer;
 }
 button:hover {

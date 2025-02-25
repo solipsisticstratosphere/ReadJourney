@@ -1,0 +1,260 @@
+.header {
+  background-color: var(--secondary-color-3);
+  border-radius: 15px;
+  padding: 16px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.headerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.desktopNav {
+  display: flex;
+}
+
+.navList {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navItem {
+  margin-right: 24px;
+}
+
+.navLink {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.activeNavLink {
+  color: var(--primary-text-color);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  position: relative;
+}
+
+.activeNavLink::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+  width: 100%;
+  height: 2px;
+  background-color: var(--primary-color-blue);
+}
+
+.userBar {
+  display: flex;
+  align-items: center;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
+}
+
+.userAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 100%;
+  stroke-width: 1px;
+  border: 1px solid rgba(249, 249, 249, 0.2);
+  background-color: #262626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+
+.userInitial {
+  font-weight: 600;
+}
+
+.userName {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 112%;
+}
+
+.logoutButton {
+  background-color: transparent;
+  border: 1px solid rgba(249, 249, 249, 0.2);
+  border-radius: 30px;
+  color: var(--primary-text-color);
+  font-weight: 700;
+  font-size: 16px;
+  padding: 10px 24px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.logoutButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.burgerIcon {
+  display: none;
+  margin-left: 8px;
+}
+
+.logosvg {
+  display: block;
+}
+.menuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.mobileMenu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 70%;
+  max-width: 320px;
+  height: 100%;
+  background-color: #1f1f1f;
+  z-index: 201;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease-in-out;
+}
+
+.mobileMenuHeader {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.mobileNavContainer {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  align-items: center;
+}
+
+.mobileNavLink {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 12px 0;
+  transition: color 0.3s;
+}
+
+.activeMobileNavLink {
+  color: var(--primary-text-color);
+  position: relative;
+  border-bottom: 2px solid var(--primary-color-blue);
+  display: inline-block;
+  width: fit-content;
+}
+
+.mobileFooter {
+  margin-top: auto;
+  padding: 20px 0;
+}
+
+.mobileLogoutButton {
+  background-color: transparent;
+  border: 1px solid rgba(249, 249, 249, 0.2);
+  border-radius: 30px;
+  color: var(--primary-text-color);
+  font-weight: 700;
+  font-size: 16px;
+  padding: 10px 24px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+.burgerButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.logosvg {
+  display: block;
+  width: 28px;
+  height: 28px;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+  .userName {
+    display: none;
+  }
+
+  .logoutButton {
+    display: none;
+  }
+  .navItem {
+    margin-right: 10px;
+  }
+}
+@media (max-width: 375px) {
+  .burgerButton {
+    display: flex;
+  }
+  .burgerIcon {
+    display: block;
+  }
+  .desktopNav {
+    display: none;
+  }
+  .userInfo {
+    margin-right: 0px;
+  }
+  .userAvatar {
+    margin-right: 7px;
+  }
+}

@@ -2,34 +2,43 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerSchema } from "../../utils/validations";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "./SignUpForm.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Iphone from "../../assets/images/iPhone.png";
+import { useDispatch, useSelector } from "react-redux";
+import { selectError, selectIsLoading } from "../../redux/auth/selectors";
+import { register as registerUser } from "../../redux/auth/operations";
 const SignUpForm = () => {
   const {
-    register,
+    register: registerField,
     handleSubmit,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(registerSchema),
   });
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const isLoading = useSelector(selectIsLoading);
+  const error = useSelector(selectError);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(
-        "http://your-backend-api/register",
-        data
-      );
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
+      // Use registerUser (from Redux) not register
+      const resultAction = await dispatch(registerUser(data));
+      if (registerUser.fulfilled.match(resultAction)) {
         navigate("/recommended");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Registration failed");
+      // Error is handled by the redux slice
     }
   };
 
@@ -59,7 +68,7 @@ const SignUpForm = () => {
               <span className={styles.innerLabel}>Name:</span>
               <input
                 type="text"
-                {...register("name")}
+                {...registerField("name")}
                 placeholder="Ilona Ratushniak"
                 className={styles.input}
               />
@@ -74,7 +83,7 @@ const SignUpForm = () => {
               <span className={styles.innerLabel}>Mail:</span>
               <input
                 type="email"
-                {...register("email")}
+                {...registerField("email")}
                 placeholder="Your@email.com"
                 className={styles.input}
               />
@@ -89,7 +98,7 @@ const SignUpForm = () => {
               <span className={styles.innerLabel}>Password:</span>
               <input
                 type={showPassword ? "text" : "password"}
-                {...register("password")}
+                {...registerField("password")}
                 placeholder="Yourpasswordhere"
                 className={styles.input}
               />
@@ -112,8 +121,12 @@ const SignUpForm = () => {
             )}
           </div>
           <div className={styles.buttonText}>
-            <button type="submit" className={styles.registerButton}>
-              Registration
+            <button
+              type="submit"
+              className={styles.registerButton}
+              disabled={isLoading}
+            >
+              {isLoading ? "Loading..." : "Registration"}
             </button>
 
             <div className={styles.loginLink}>

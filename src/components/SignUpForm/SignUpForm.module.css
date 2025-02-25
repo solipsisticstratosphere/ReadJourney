@@ -9,7 +9,7 @@
 
 .formSection {
   border-radius: 30px;
-  width: 50%;
+  width: 600px;
   padding: 40px 55px;
   display: flex;
   flex-direction: column;
@@ -178,7 +178,7 @@
 
 .mobilePreviewSection {
   border-radius: 30px;
-  width: 50%;
+  width: 600px;
   background-color: var(--secondary-color-3);
   display: flex;
   align-items: flex-end;

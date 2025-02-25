@@ -6,8 +6,11 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "../SignUpForm/SignUpForm.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Iphone from "../../assets/images/iPhone.png";
+import { useDispatch, useSelector } from "react-redux";
+import { selectError, selectIsLoading } from "../../redux/auth/selectors";
+import { login } from "../../redux/auth/operations";
 const SignInForm = () => {
   const {
     register,
@@ -16,20 +19,25 @@ const SignInForm = () => {
   } = useForm({
     resolver: yupResolver(loginSchema),
   });
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const isLoading = useSelector(selectIsLoading);
+  const error = useSelector(selectError);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(
-        "http://your-backend-api/register",
-        data
-      );
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
+      const resultAction = await dispatch(login(data));
+      if (login.fulfilled.match(resultAction)) {
         navigate("/recommended");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
+      // Error is handled by the redux slice
     }
   };
 
@@ -97,10 +105,13 @@ const SignInForm = () => {
             )}
           </div>
           <div className={styles.buttonText}>
-            <button type="submit" className={styles.registerButton}>
-              Log in
+            <button
+              type="submit"
+              className={styles.registerButton}
+              disabled={isLoading}
+            >
+              {isLoading ? "Loading..." : "Log in"}
             </button>
-
             <div className={styles.loginLink}>
               <a href="/register" className={styles.linkText}>
                 Don`t have an account?
