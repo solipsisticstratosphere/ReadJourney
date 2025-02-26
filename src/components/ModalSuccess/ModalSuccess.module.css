@@ -1,0 +1,93 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: var(--secondary-color-3);
+  border-radius: 18px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-width: 342px;
+  height: 290px;
+  width: 90%;
+  max-height: 90vh;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.successModal {
+  padding: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.thumbsUpContainer {
+  margin-bottom: 1rem;
+}
+
+.thumbsUpPlaceholder {
+  width: 50px;
+  height: 50px;
+  background-color: #ffd700; /* Temporary color for placeholder */
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.successTitle {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 100%;
+  margin-bottom: 1rem;
+  color: var(--primary-text-color);
+}
+
+.successMessage {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--primary-color-grey);
+  font-weight: 500;
+  max-width: 242px;
+  margin: 0 auto;
+}
+
+.highlight {
+  color: var(--primary-text-color);
+}
+
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+}
+
+.closeIcon {
+  font-size: 24px;
+  line-height: 1;
+}

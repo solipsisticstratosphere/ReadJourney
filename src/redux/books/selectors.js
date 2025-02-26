@@ -29,3 +29,9 @@ export const selectHasLibraryBooks = (state) =>
 export const selectIsBookInLibrary = (state, bookId) => {
   return state.books.library.items.some((book) => book._id === bookId);
 };
+export const selectLimitedRecommendedBooks = (state) =>
+  state.books.limitedRecommended.items;
+export const selectLimitedRecommendedBooksLoading = (state) =>
+  state.books.limitedRecommended.isLoading;
+export const selectLimitedRecommendedBooksError = (state) =>
+  state.books.limitedRecommended.error;

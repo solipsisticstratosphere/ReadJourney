@@ -4,7 +4,10 @@
   border-radius: 30px;
   flex: 1;
 }
-
+.recommendedBooksLibraryView {
+  background-color: transparent;
+  padding: 0;
+}
 .header {
   display: flex;
   justify-content: space-between;
@@ -92,6 +95,11 @@
   font-size: 16px;
   color: var(--primary-text-color);
   max-width: 300px;
+}
+.libraryGrid {
+  /* Different grid style specifically for library view */
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 12px;
 }
 @media (max-width: 768px) {
   .booksGrid {

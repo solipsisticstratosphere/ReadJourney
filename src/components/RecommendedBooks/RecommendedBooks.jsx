@@ -2,36 +2,44 @@ import styles from "./RecommendedBooks.module.css";
 import BookCard from "../BookCard/BookCard";
 
 const RecommendedBooks = ({
-  books,
-  currentPage,
-  totalPages,
-  onPageChange,
-  onBookClick,
-  isLoading,
+  books = [], // Дефолтное значение - пустой массив
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {}, // Пустая функция по умолчанию
+  onBookClick = () => {}, // Пустая функция по умолчанию
+  isLoading = false,
+  showLimited = false,
+  isLibraryView = false, // New prop to specifically target library view
 }) => {
   // Check if books array is empty
   const noBooksFound = books.length === 0 && !isLoading;
 
   return (
-    <div className={styles.recommendedBooks}>
+    <div
+      className={`${styles.recommendedBooks} ${
+        isLibraryView ? styles.recommendedBooksLibraryView : ""
+      }`}
+    >
       <div className={styles.header}>
-        <h1 className={styles.title}>Recommended</h1>
-        <div className={styles.pagination}>
-          <button
-            className={styles.paginationButton}
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1 || isLoading || noBooksFound}
-          >
-            &lt;
-          </button>
-          <button
-            className={styles.paginationButton}
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages || isLoading || noBooksFound}
-          >
-            &gt;
-          </button>
-        </div>
+        <h1 className={styles.title}>{isLibraryView ? "" : "Recommended"}</h1>
+        {!showLimited && (
+          <div className={styles.pagination}>
+            <button
+              className={styles.paginationButton}
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage === 1 || isLoading || noBooksFound}
+            >
+              &lt;
+            </button>
+            <button
+              className={styles.paginationButton}
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage === totalPages || isLoading || noBooksFound}
+            >
+              &gt;
+            </button>
+          </div>
+        )}
       </div>
 
       {isLoading ? (
@@ -45,12 +53,17 @@ const RecommendedBooks = ({
           </p>
         </div>
       ) : (
-        <div className={styles.booksGrid}>
-          {books.map((book) => (
+        <div
+          className={`${styles.booksGrid} ${
+            isLibraryView ? styles.libraryGrid : ""
+          }`}
+        >
+          {books.map((book, index) => (
             <BookCard
-              key={book._id}
+              key={book._id || book.id || index}
               book={book}
               onClick={() => onBookClick(book)}
+              isLibraryView={isLibraryView}
             />
           ))}
         </div>

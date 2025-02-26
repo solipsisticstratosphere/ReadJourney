@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
   fetchRecommendedBooksAsync,
+  fetchLimitedRecommendedBooksAsync,
   addBookToLibraryAsync,
   fetchUserLibraryAsync,
   getPerPageByScreenWidth,
@@ -14,6 +15,11 @@ const initialState = {
     currentPage: 1,
     totalPages: 1,
     perPage: typeof window !== "undefined" ? getPerPageByScreenWidth() : 10,
+  },
+  limitedRecommended: {
+    items: [],
+    isLoading: false,
+    error: null,
   },
   library: {
     items: [],
@@ -50,6 +56,7 @@ const booksSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Обработка обычных рекомендаций
       .addCase(fetchRecommendedBooksAsync.pending, (state) => {
         state.recommended.isLoading = true;
         state.recommended.error = null;
@@ -67,6 +74,24 @@ const booksSlice = createSlice({
           action.payload ||
           "Произошла ошибка при загрузке рекомендованных книг";
       })
+
+      // Обработка ограниченных рекомендаций (3 книги)
+      .addCase(fetchLimitedRecommendedBooksAsync.pending, (state) => {
+        state.limitedRecommended.isLoading = true;
+        state.limitedRecommended.error = null;
+      })
+      .addCase(fetchLimitedRecommendedBooksAsync.fulfilled, (state, action) => {
+        state.limitedRecommended.isLoading = false;
+        state.limitedRecommended.items = action.payload.results.slice(0, 3); // Гарантируем, что будет не больше 3 книг
+      })
+      .addCase(fetchLimitedRecommendedBooksAsync.rejected, (state, action) => {
+        state.limitedRecommended.isLoading = false;
+        state.limitedRecommended.error =
+          action.payload ||
+          "Произошла ошибка при загрузке ограниченных рекомендаций";
+      })
+
+      // Обработка библиотеки и добавления книг
       .addCase(addBookToLibraryAsync.pending, (state) => {
         state.library.isLoading = true;
         state.library.error = null;

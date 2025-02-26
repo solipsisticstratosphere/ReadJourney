@@ -10,6 +10,7 @@ import { PrivateRoute } from "../PrivateRoute";
 import { refreshUser } from "../../redux/auth/operations";
 import Layout from "../Layout/Layout";
 import RecommendedPage from "../../pages/RecommendPage/RecommendPage";
+import MyLibraryPage from "../../pages/MyLibraryPage/MyLibraryPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -38,6 +39,12 @@ function App() {
                 component={<RecommendedPage />}
                 redirectTo="/login"
               />
+            }
+          />
+          <Route
+            path="/library"
+            element={
+              <PrivateRoute component={<MyLibraryPage />} redirectTo="/login" />
             }
           />
         </Route>

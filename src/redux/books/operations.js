@@ -43,10 +43,36 @@ const fetchRecommendedBooksApi = async (
   }
 };
 
-const addBookToLibraryApi = async (bookId) => {
+// API-функция для ограниченного числа книг (3 книги для секции в библиотеке)
+const fetchLimitedRecommendedBooksApi = async () => {
   try {
-    const response = await axios.post(`/books/add/${bookId}`);
+    const params = new URLSearchParams();
+    params.append("page", 1);
+    params.append("limit", 3); // Фиксированное ограничение в 3 книги
+
+    const response = await axios.get(`/books/recommend?${params.toString()}`);
     return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message ||
+        "Failed to fetch limited recommended books"
+    );
+  }
+};
+
+const addBookToLibraryApi = async (bookData) => {
+  try {
+    // If bookData is an object with book details, send POST request to /books/add
+    // If bookData is just an ID, use the existing endpoint
+    if (typeof bookData === "object" && bookData.title) {
+      const response = await axios.post("/books/add", bookData);
+      return response.data;
+    } else {
+      // Original implementation for adding existing books by ID
+      const bookId = bookData;
+      const response = await axios.post(`/books/add/${bookId}`);
+      return response.data;
+    }
   } catch (error) {
     throw new Error(
       error.response?.data?.message || "Failed to add book to library"
@@ -56,7 +82,7 @@ const addBookToLibraryApi = async (bookId) => {
 
 const fetchUserLibraryApi = async () => {
   try {
-    const response = await axios.get("/books/user");
+    const response = await axios.get("/books/own");
     return response.data;
   } catch (error) {
     throw new Error(
@@ -77,11 +103,23 @@ export const fetchRecommendedBooksAsync = createAsyncThunk(
   }
 );
 
+// Новый thunk для ограниченных рекомендаций (3 книги)
+export const fetchLimitedRecommendedBooksAsync = createAsyncThunk(
+  "books/fetchLimitedRecommended",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await fetchLimitedRecommendedBooksApi();
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 export const addBookToLibraryAsync = createAsyncThunk(
   "books/addToLibrary",
-  async (bookId, { rejectWithValue }) => {
+  async (bookData, { rejectWithValue }) => {
     try {
-      return await addBookToLibraryApi(bookId);
+      return await addBookToLibraryApi(bookData);
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -112,6 +150,11 @@ export const loadRecommendedBooks = () => (dispatch, getState) => {
       filters,
     })
   );
+};
+
+// Новая операция для загрузки ограниченного числа рекомендуемых книг
+export const loadLimitedRecommendedBooks = () => (dispatch) => {
+  dispatch(fetchLimitedRecommendedBooksAsync());
 };
 
 // Добавляем обработчик изменения размера окна с дебаунсингом
