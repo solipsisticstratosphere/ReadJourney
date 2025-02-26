@@ -1,62 +1,69 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Dashboard from "../../components/Dashboard/Dashboard";
+import RecommendedBooks from "../../components/RecommendedBooks/RecommendedBooks";
+// import BookDetailsModal from "../../components/BookDetailsModal/BookDetailsModal";
+
+// Импорты операций и селекторов из новой структуры
+import {
+  loadRecommendedBooks,
+  changeRecommendedPage,
+  applyFilters,
+  selectBookDetails,
+  addBookAndCloseModal,
+  clearSelectedBook,
+} from "../../redux/books/operations";
+
+import {
+  selectRecommendedBooks,
+  selectRecommendedBooksLoading,
+  selectCurrentPage,
+  selectTotalPages,
+  selectFilters,
+  selectSelectedBook,
+} from "../../redux/books/selectors";
 
 import styles from "./RecommendedPage.module.css";
 
 const RecommendedPage = () => {
-  //   const [books, setBooks] = useState([]);
-  //   const [currentPage, setCurrentPage] = useState(1);
-  //   const [totalPages, setTotalPages] = useState(1);
-  //   const [isLoading, setIsLoading] = useState(false);
-  //   const [selectedBook, setSelectedBook] = useState(null);
-  //   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [filters, setFilters] = useState({ title: "", author: "" });
+  const dispatch = useDispatch();
 
-  //   const booksPerPage = 10;
+  // Select data from Redux store
+  const books = useSelector(selectRecommendedBooks);
+  const isLoading = useSelector(selectRecommendedBooksLoading);
+  const currentPage = useSelector(selectCurrentPage);
+  const totalPages = useSelector(selectTotalPages);
+  const filters = useSelector(selectFilters);
+  const selectedBook = useSelector(selectSelectedBook);
 
-  //   useEffect(() => {
-  //     loadBooks(currentPage, filters);
-  //   }, [currentPage, filters]);
+  // Load books on initial render and when deps change
+  useEffect(() => {
+    dispatch(loadRecommendedBooks());
+  }, [dispatch]);
 
-  //   const loadBooks = async (page, filters) => {
-  //     setIsLoading(true);
-  //     try {
-  //       const response = await fetchRecommendedBooks(page, booksPerPage, filters);
-  //       setBooks(response.books);
-  //       setTotalPages(response.totalPages);
-  //     } catch (error) {
-  //       console.error("Error loading recommended books:", error);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   const handlePageChange = (newPage) => {
-  //     setCurrentPage(newPage);
-  //   };
-
-  const handleFilterSubmit = (newFilters) => {
-    // setFilters(newFilters);
-    // setCurrentPage(1); // Reset to first page when applying filters
+  // Handlers
+  const handlePageChange = (newPage) => {
+    dispatch(changeRecommendedPage(newPage));
   };
 
-  //   const handleBookClick = (book) => {
-  //     setSelectedBook(book);
-  //     setIsModalOpen(true);
-  //   };
+  const handleFilterSubmit = (newFilters) => {
+    dispatch(applyFilters(newFilters));
+  };
 
-  //   const handleCloseModal = () => {
-  //     setIsModalOpen(false);
-  //   };
+  const handleBookClick = (book) => {
+    dispatch(selectBookDetails(book));
+  };
 
-  //   const handleAddToLibrary = async (bookId) => {
-  //     // Implementation for adding the book to the user's library
-  //     console.log("Adding book to library:", bookId);
-  //     // Add actual API call here
+  const handleCloseModal = () => {
+    dispatch(clearSelectedBook());
+  };
 
-  //     // Close the modal after adding
-  //     setIsModalOpen(false);
-  //   };
+  const handleAddToLibrary = (bookId) => {
+    dispatch(addBookAndCloseModal(bookId));
+  };
+
+  // Check if modal should be open
+  const isModalOpen = !!selectedBook;
 
   return (
     <div className={styles.recommendedPage}>
@@ -65,7 +72,7 @@ const RecommendedPage = () => {
         onFilterSubmit={handleFilterSubmit}
         filters={filters}
       />
-      {/* <RecommendedBooks
+      <RecommendedBooks
         books={books}
         currentPage={currentPage}
         totalPages={totalPages}
@@ -73,11 +80,11 @@ const RecommendedPage = () => {
         onBookClick={handleBookClick}
         isLoading={isLoading}
       />
-      {isModalOpen && selectedBook && (
+      {/* {isModalOpen && (
         <BookDetailsModal
           book={selectedBook}
           onClose={handleCloseModal}
-          onAddToLibrary={() => handleAddToLibrary(selectedBook.id)}
+          onAddToLibrary={() => handleAddToLibrary(selectedBook._id)}
         />
       )} */}
     </div>

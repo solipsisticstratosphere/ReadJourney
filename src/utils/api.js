@@ -1,7 +1,7 @@
 // axiosConfig.js
 import axios from "axios";
 
-const setupAxios = (store) => {
+export const setupAxios = (store) => {
   axios.defaults.baseURL = "https://readjourney.b.goit.study/api";
 
   axios.interceptors.request.use(
@@ -60,5 +60,3 @@ const setupAxios = (store) => {
 
   return axios;
 };
-
-export default setupAxios;

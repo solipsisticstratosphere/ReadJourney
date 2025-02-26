@@ -1,0 +1,77 @@
+.recommendedBooks {
+  padding: 40px 40px 28px 40px;
+  background-color: var(--secondary-color-3);
+  border-radius: 30px;
+  flex: 1;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 114%;
+  color: var(--primary-text-color);
+  margin: 0;
+}
+
+.pagination {
+  display: flex;
+  gap: 8px;
+}
+
+.paginationButton {
+  border: 1px solid rgba(249, 249, 249, 0.2);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #1e1e1e;
+
+  color: #fff;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: #333;
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.booksGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 20px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 18px;
+}
+
+@media (max-width: 768px) {
+  .booksGrid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+}

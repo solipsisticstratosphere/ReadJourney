@@ -1,5 +1,4 @@
 .dashboard {
-  min-height: 80vh;
   width: 353px;
   flex-shrink: 0;
   background-color: var(--secondary-color-3);
