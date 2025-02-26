@@ -4,7 +4,7 @@
 
   text-align: center;
   min-height: 100vh;
-  padding-top: 32px;
+  padding: 32px;
 }
 
 @keyframes logo-spin {
@@ -28,4 +28,6 @@
 
 .read-the-docs {
   color: #888;
+}
+@media screen and (max-width: 768px) {
 }

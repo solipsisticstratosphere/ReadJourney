@@ -190,6 +190,53 @@
 
   object-fit: cover; /* Убедитесь, что изображение корректно обрезается и заполняет контейнер */
 }
+/* Add these new classes */
+.inputContainerError {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: var(--secondary-color-2);
+  border: 1px solid #ff4d4f; /* Red border for error */
+  border-radius: 12px;
+}
+
+.inputContainerSuccess {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: var(--secondary-color-2);
+  border: 1px solid #52c41a; /* Green border for success */
+  border-radius: 12px;
+}
+
+/* Status indicators */
+.statusIcon {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* For when eye icon and status icon are both present */
+.showPasswordBtnWithStatus {
+  right: 40px;
+}
+
+/* Status messages */
+.errorMessage {
+  color: #ff4d4f;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.successMessage {
+  color: #52c41a;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
 @media (max-width: 768px) {
   .signupContainer {
     flex-direction: column;

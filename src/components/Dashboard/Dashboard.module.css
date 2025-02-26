@@ -90,6 +90,8 @@
 }
 
 .startWorkout {
+  max-width: 100%;
+
   padding: 20px;
   border-radius: 12px;
   background-color: var(--secondary-color-2);
@@ -188,8 +190,18 @@
   font-weight: 500;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 768px) {
   .dashboard {
+    flex-direction: row;
+    width: 100%;
+  }
+  .quoteSection {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  .dashboard {
+    flex-direction: column;
     width: 100%;
   }
 }

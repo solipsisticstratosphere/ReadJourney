@@ -3,6 +3,7 @@ import {
   fetchRecommendedBooksAsync,
   addBookToLibraryAsync,
   fetchUserLibraryAsync,
+  getPerPageByScreenWidth,
 } from "./operations";
 
 const initialState = {
@@ -12,7 +13,7 @@ const initialState = {
     error: null,
     currentPage: 1,
     totalPages: 1,
-    perPage: 10,
+    perPage: typeof window !== "undefined" ? getPerPageByScreenWidth() : 10,
   },
   library: {
     items: [],
@@ -42,6 +43,9 @@ const booksSlice = createSlice({
     },
     clearSelectedBook: (state) => {
       state.selectedBook = null;
+    },
+    updatePerPage: (state, action) => {
+      state.recommended.perPage = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -98,6 +102,7 @@ export const {
   setCurrentPage,
   setSelectedBook,
   clearSelectedBook,
+  updatePerPage,
 } = booksSlice.actions;
 
 export default booksSlice.reducer;

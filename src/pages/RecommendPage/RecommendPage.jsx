@@ -12,6 +12,7 @@ import {
   selectBookDetails,
   addBookAndCloseModal,
   clearSelectedBook,
+  setupResponsiveListener,
 } from "../../redux/books/operations";
 
 import {
@@ -24,6 +25,7 @@ import {
 } from "../../redux/books/selectors";
 
 import styles from "./RecommendedPage.module.css";
+import BookDetailsModal from "../../components/BookDetailsModal/BookDetailsModal";
 
 const RecommendedPage = () => {
   const dispatch = useDispatch();
@@ -36,9 +38,19 @@ const RecommendedPage = () => {
   const filters = useSelector(selectFilters);
   const selectedBook = useSelector(selectSelectedBook);
 
-  // Load books on initial render and when deps change
+  // Load books on initial render and setup responsive listener
   useEffect(() => {
+    const cleanupListener = dispatch(setupResponsiveListener());
     dispatch(loadRecommendedBooks());
+
+    // Устанавливаем слушатель изменения размера окна
+
+    // Очищаем слушатель при размонтировании компонента
+    return () => {
+      if (typeof cleanupListener === "function") {
+        cleanupListener();
+      }
+    };
   }, [dispatch]);
 
   // Handlers
@@ -80,13 +92,13 @@ const RecommendedPage = () => {
         onBookClick={handleBookClick}
         isLoading={isLoading}
       />
-      {/* {isModalOpen && (
+      {isModalOpen && (
         <BookDetailsModal
           book={selectedBook}
           onClose={handleCloseModal}
           onAddToLibrary={() => handleAddToLibrary(selectedBook._id)}
         />
-      )} */}
+      )}
     </div>
   );
 };

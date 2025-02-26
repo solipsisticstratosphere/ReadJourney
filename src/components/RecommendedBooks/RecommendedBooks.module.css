@@ -52,7 +52,7 @@
 
 .booksGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
   gap: 20px;
 }
 
@@ -61,17 +61,61 @@
   justify-content: center;
   align-items: center;
   height: 200px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.878);
   font-size: 18px;
 }
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  background-color: var(--secondary-color-2);
+  border-radius: 20px;
+  margin-top: 20px;
+  min-height: 200px;
+}
 
+.emptyStateIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.emptyStateTitle {
+  font-size: 20px;
+  margin-bottom: 8px;
+  color: #c2b8b8;
+}
+
+.emptyStateText {
+  font-size: 16px;
+  color: var(--primary-text-color);
+  max-width: 300px;
+}
 @media (max-width: 768px) {
   .booksGrid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 16px;
   }
 
   .title {
     font-size: 24px;
+  }
+}
+@media (max-width: 375px) {
+  .booksGrid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+
+    gap: 21px;
+  }
+  .title {
+    font-weight: 700;
+    font-size: 20px;
+  }
+  .paginationButton {
+    font-size: 14px;
+    width: 32px;
+    height: 32px;
   }
 }

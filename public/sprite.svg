@@ -27,4 +27,29 @@
   <path stroke="#E3E3E3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14 17 5-5-5-5M19 12H5"/>
 
 </symbol>
+<symbol id="error-icon" viewBox="0 0 20 20">
+
+  <g clip-path="url(#a)">
+    <path fill="#E90516" fill-rule="evenodd" d="M10 18.125a8.125 8.125 0 1 0 0-16.25 8.125 8.125 0 0 0 0 16.25ZM10 20a10 10 0 1 0 0-20 10 10 0 0 0 0 20Zm1.25-6.25a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Zm-.313-7.813a.938.938 0 0 0-1.874 0v4.375a.937.937 0 0 0 1.874 0V5.939Z" clip-rule="evenodd"/>
+  </g>
+  <defs>
+    <clipPath id="a">
+      <path fill="#fff" d="M0 0h20v20H0z"/>
+    </clipPath>
+  </defs>
+
+</symbol>
+<symbol id="success-icon" viewBox="0 0 20 20">
+
+  <g fill="#30B94D" clip-path="url(#a)">
+    <path d="M9.375 13.6 6 9.8l1.125-1.267 2.25 2.533L13.875 6 15 7.267l-5.625 6.331v.002Z"/>
+    <path fill-rule="evenodd" d="M0 10C0 4.477 4.477 0 10 0s10 4.477 10 10-4.477 10-10 10S0 15.523 0 10Zm10 8.182a8.181 8.181 0 1 1 0-16.363 8.181 8.181 0 0 1 0 16.363Z" clip-rule="evenodd"/>
+  </g>
+  <defs>
+    <clipPath id="a">
+      <path fill="#fff" d="M0 0h20v20H0z"/>
+    </clipPath>
+  </defs>
+
+</symbol>
 </svg>
