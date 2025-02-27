@@ -44,13 +44,24 @@
 .inputGroup {
   position: relative;
   display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Field container with label and input */
+.inputField {
+  display: flex;
   align-items: center;
   width: 100%;
   background-color: var(--secondary-color-2);
   border: none;
   border-radius: 12px;
+  overflow: hidden; /* Prevent children from overflowing */
 }
-
+.inputField input[type="text"][name="pages"] {
+  max-width: 100%; /* Maximum width */
+  min-width: 0; /* Allow shrinking if needed */
+}
 .inputLabel {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.7);
@@ -64,6 +75,10 @@
   color: var(--primary-text-color);
   font-size: 1rem;
   outline: none;
+  width: 100%; /* Ensure input respects container width */
+  box-sizing: border-box; /* Include padding in width calculation */
+  overflow: hidden; /* Prevent overflow */
+  text-overflow: ellipsis; /* Add ellipsis for text that might overflow */
 }
 .input::placeholder {
   color: var(--primary-text-color);
@@ -244,8 +259,66 @@
 .error {
   background-color: #e53935;
   color: white;
+  margin-top: 6px;
+  font-size: 12px;
+  padding-left: 14px;
+}
+.inputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: var(--secondary-color-2);
+  border: none;
+  border-radius: 12px;
 }
 
+.inputContainerError {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: var(--secondary-color-2);
+  border: 1px solid #ff4d4f; /* Red border for error */
+  border-radius: 12px;
+}
+
+.inputContainerSuccess {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: var(--secondary-color-2);
+  border: 1px solid #52c41a; /* Green border for success */
+  border-radius: 12px;
+}
+
+/* Status indicators */
+.statusIcon {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* For when eye icon and status icon are both present */
+.showPasswordBtnWithStatus {
+  right: 40px;
+}
+
+/* Status messages */
+.errorMessage {
+  color: #ff4d4f;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.successMessage {
+  color: #52c41a;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
 .closeNotification {
   background: none;
   border: none;

@@ -9,43 +9,32 @@ import {
   selectLimitedRecommendedBooks,
   selectLimitedRecommendedBooksLoading,
 } from "../../redux/books/selectors";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 import styles from "./Dashboard.module.css";
 import RecommendedBooks from "../RecommendedBooks/RecommendedBooks";
 import smallBooks from "../../assets/images/smallBooks.png";
-import ModalSuccess from "../ModalSuccess/ModalSuccess";
 import SuccessModal from "../ModalSuccess/ModalSuccess";
+import { addBookSchema } from "../../utils/validations";
 
 const Dashboard = ({ page, onFilterSubmit, filters }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Получаем ограниченные рекомендации для библиотеки
+  // Get limited recommendations for library
   const limitedRecommendedBooks = useSelector(selectLimitedRecommendedBooks);
   const isLoadingLimitedRecommended = useSelector(
     selectLimitedRecommendedBooksLoading
   );
 
-  // Загружаем ограниченные рекомендации при монтировании компонента для страницы библиотеки
+  // Load limited recommendations when component mounts for library page
   useEffect(() => {
     if (page === "library") {
       dispatch(loadLimitedRecommendedBooks());
     }
   }, [dispatch, page]);
 
-  const [formData, setFormData] = useState(
-    page === "recommended"
-      ? {
-          title: filters?.title || "",
-          author: filters?.author || "",
-        }
-      : {
-          title: "",
-          author: "",
-          pages: "",
-        }
-  );
-
-  const [errors, setErrors] = useState({});
+  // Notification state
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationType, setNotificationType] = useState(""); // "success" or "error"
@@ -54,59 +43,63 @@ const Dashboard = ({ page, onFilterSubmit, filters }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [addedBook, setAddedBook] = useState(null);
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.title.trim()) {
-      newErrors.title = "Book title is required";
-    }
-    if (!formData.author.trim()) {
-      newErrors.author = "Author name is required";
-    }
-    if (page === "library" && !formData.pages?.trim()) {
-      newErrors.pages = "Number of pages is required";
-    } else if (
-      page === "library" &&
-      (isNaN(Number(formData.pages)) || Number(formData.pages) <= 0)
-    ) {
-      newErrors.pages = "Pages must be a positive number";
-    }
+  // Define schema based on page
+  const filterSchema =
+    page === "library"
+      ? addBookSchema
+      : {
+          title: "",
+          author: "",
+        };
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  // Setup form with react-hook-form
+  const {
+    register,
+    handleSubmit: processSubmit,
+    formState: { errors, dirtyFields, isSubmitted },
+    reset,
+    watch,
+  } = useForm({
+    resolver: yupResolver(filterSchema),
+    mode: "onChange",
+    defaultValues:
+      page === "recommended"
+        ? {
+            title: filters?.title || "",
+            author: filters?.author || "",
+          }
+        : {
+            title: "",
+            author: "",
+            pages: "",
+          },
+  });
+
+  // Get input container class based on validation state
+  const getInputContainerClass = (fieldName) => {
+    if (dirtyFields[fieldName] || isSubmitted) {
+      if (errors[fieldName]) {
+        return styles.inputContainerError;
+      } else {
+        return styles.inputContainerSuccess;
+      }
+    }
+    return styles.inputContainer;
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    // Clear error on input change
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  // Form submission handler
+  const onSubmit = async (data) => {
     if (page === "recommended") {
-      onFilterSubmit(formData);
+      onFilterSubmit(data);
       return;
     }
-
-    if (!validateForm()) return;
 
     try {
       // Send request to add book to library
       const bookData = {
-        title: formData.title,
-        author: formData.author,
-        totalPages: parseInt(formData.pages),
+        title: data.title,
+        author: data.author,
+        totalPages: parseInt(data.pages),
       };
 
       const result = await dispatch(addBookToLibraryAsync(bookData)).unwrap();
@@ -116,11 +109,7 @@ const Dashboard = ({ page, onFilterSubmit, filters }) => {
       setShowSuccessModal(true);
 
       // Reset form
-      setFormData({
-        title: "",
-        author: "",
-        pages: "",
-      });
+      reset();
     } catch (error) {
       // Show error notification
       setNotificationMessage(error || "Failed to add book to library");
@@ -129,48 +118,102 @@ const Dashboard = ({ page, onFilterSubmit, filters }) => {
     }
   };
 
+  const onError = (errors) => {
+    // Show validation error notification
+    const errorMessages = Object.values(errors)
+      .map((err) => err.message)
+      .join(", ");
+    setNotificationMessage(errorMessages);
+    setNotificationType("error");
+    setShowNotification(true);
+  };
+
   const handleNotificationClose = () => {
     setShowNotification(false);
   };
 
   const handleBookClick = (book) => {
-    // Можно добавить диспатч для выбора книги или другие действия
     console.log("Book clicked:", book);
   };
+
   const handleCloseSuccessModal = () => {
     setShowSuccessModal(false);
   };
+
+  // Function to show status message
+  const getStatusMessage = (fieldName) => {
+    if ((dirtyFields[fieldName] || isSubmitted) && errors[fieldName]) {
+      return <span className={styles.error}>{errors[fieldName].message}</span>;
+    }
+    return null;
+  };
+
   return (
     <div className={styles.dashboard}>
       {page === "recommended" && (
         <>
           <div className={styles.filtersSection}>
             <h2 className={styles.sectionTitle}>Filters:</h2>
-            <form className={styles.filtersForm} onSubmit={handleSubmit}>
+            <form
+              className={styles.filtersForm}
+              onSubmit={processSubmit(onSubmit)}
+            >
               <div className={styles.inputGroup}>
-                <span className={styles.innerLabel}>Book title:</span>
-                <input
-                  type="text"
-                  id="bookTitle"
-                  name="title"
-                  className={styles.input}
-                  placeholder="Enter text"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                />
+                <div className={styles.inputField}>
+                  <span className={styles.innerLabel}>Book title:</span>
+                  <div className={getInputContainerClass("title")}>
+                    <input
+                      type="text"
+                      id="bookTitle"
+                      className={styles.input}
+                      placeholder="Enter text"
+                      {...register("title")}
+                    />
+                    {(dirtyFields.title || isSubmitted) && (
+                      <div className={styles.statusIcon}>
+                        {errors.title ? (
+                          <svg width="20" height="20">
+                            <use href="/sprite.svg#error-icon" />
+                          </svg>
+                        ) : (
+                          <svg width="20" height="20">
+                            <use href="/sprite.svg#success-icon" />
+                          </svg>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {getStatusMessage("title")}
               </div>
 
               <div className={styles.inputGroup}>
-                <span className={styles.innerLabel}>The author:</span>
-                <input
-                  type="text"
-                  id="author"
-                  name="author"
-                  className={styles.input}
-                  placeholder="Enter text"
-                  value={formData.author}
-                  onChange={handleInputChange}
-                />
+                <div className={styles.inputField}>
+                  <span className={styles.innerLabel}>The author:</span>
+                  <div className={getInputContainerClass("author")}>
+                    <input
+                      type="text"
+                      id="author"
+                      className={styles.input}
+                      placeholder="Enter text"
+                      {...register("author")}
+                    />
+                    {(dirtyFields.author || isSubmitted) && (
+                      <div className={styles.statusIcon}>
+                        {errors.author ? (
+                          <svg width="20" height="20">
+                            <use href="/sprite.svg#error-icon" />
+                          </svg>
+                        ) : (
+                          <svg width="20" height="20">
+                            <use href="/sprite.svg#success-icon" />
+                          </svg>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {getStatusMessage("author")}
               </div>
 
               <button type="submit" className={styles.applyButton}>
@@ -230,49 +273,102 @@ const Dashboard = ({ page, onFilterSubmit, filters }) => {
         <>
           <form
             className={styles.filtersFormLibraryView}
-            onSubmit={handleSubmit}
+            onSubmit={processSubmit(onSubmit, onError)}
           >
             <h2 className={styles.sectionTitle}>Create your library:</h2>
             <div className={styles.inputGroup}>
-              <span className={styles.innerLabel}>Book title:</span>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                className={styles.input}
-              />
-              {errors.title && (
-                <span className={styles.error}>{errors.title}</span>
-              )}
+              <div className={styles.inputField}>
+                <span className={styles.innerLabel}>Book title:</span>
+                <div className={getInputContainerClass("title")}>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    placeholder="Book title"
+                    {...register("title")}
+                  />
+                  {(dirtyFields.title || isSubmitted) && (
+                    <div className={styles.statusIcon}>
+                      {errors.title ? (
+                        <svg width="20" height="20">
+                          <use href="/sprite.svg#error-icon" />
+                        </svg>
+                      ) : (
+                        <svg width="20" height="20">
+                          <use href="/sprite.svg#success-icon" />
+                        </svg>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {getStatusMessage("title")}
             </div>
 
             <div className={styles.inputGroup}>
-              <span className={styles.innerLabel}>The author:</span>
-              <input
-                type="text"
-                name="author"
-                value={formData.author}
-                onChange={handleInputChange}
-                className={styles.input}
-              />
-              {errors.author && (
-                <span className={styles.error}>{errors.author}</span>
-              )}
+              <div className={styles.inputField}>
+                <span className={styles.innerLabel}>The author:</span>
+                <div className={getInputContainerClass("author")}>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    placeholder="Author name"
+                    {...register("author")}
+                  />
+                  {(dirtyFields.author || isSubmitted) && (
+                    <div className={styles.statusIcon}>
+                      {errors.author ? (
+                        <svg width="20" height="20">
+                          <use href="/sprite.svg#error-icon" />
+                        </svg>
+                      ) : (
+                        <svg width="20" height="20">
+                          <use href="/sprite.svg#success-icon" />
+                        </svg>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {getStatusMessage("author")}
             </div>
 
             <div className={styles.inputGroup}>
-              <span className={styles.innerLabel}>Number of pages:</span>
-              <input
-                type="text"
-                name="pages"
-                value={formData.pages || ""}
-                onChange={handleInputChange}
-                className={styles.input}
-              />
-              {errors.pages && (
-                <span className={styles.error}>{errors.pages}</span>
-              )}
+              <div className={styles.inputField}>
+                <span className={styles.innerLabel}>Number of pages:</span>
+                <div className={getInputContainerClass("pages")}>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    {...register("pages")}
+                    onKeyPress={(e) => {
+                      // Allow only digits and control keys
+                      if (
+                        !/[0-9]/.test(e.key) &&
+                        e.key !== "Backspace" &&
+                        e.key !== "Delete" &&
+                        e.key !== "ArrowLeft" &&
+                        e.key !== "ArrowRight"
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
+                  />
+                  {(dirtyFields.pages || isSubmitted) && (
+                    <div className={styles.statusIcon}>
+                      {errors.pages ? (
+                        <svg width="20" height="20">
+                          <use href="/sprite.svg#error-icon" />
+                        </svg>
+                      ) : (
+                        <svg width="20" height="20">
+                          <use href="/sprite.svg#success-icon" />
+                        </svg>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {getStatusMessage("pages")}
             </div>
 
             <button type="submit" className={styles.applyButton}>
@@ -289,7 +385,7 @@ const Dashboard = ({ page, onFilterSubmit, filters }) => {
               books={limitedRecommendedBooks}
               isLoading={isLoadingLimitedRecommended}
               onBookClick={handleBookClick}
-              isLibraryView={page === "library"}
+              isLibraryView={true}
             />
             <Link to="/recommended" className={styles.libraryLink}>
               Home
@@ -312,6 +408,7 @@ const Dashboard = ({ page, onFilterSubmit, filters }) => {
           </button>
         </div>
       )}
+
       {showSuccessModal && page === "library" && (
         <SuccessModal
           showSuccessModal={showSuccessModal}
