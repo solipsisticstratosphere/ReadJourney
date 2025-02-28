@@ -1,0 +1,261 @@
+.readingPageContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
+
+.mainContent {
+  display: flex;
+  flex: 1;
+}
+
+/* Left Side - Dashboard */
+.dashboardSide {
+  width: 300px;
+  background-color: #202020;
+  padding: 20px;
+  border-right: 1px solid #333;
+}
+
+.stopPageSection {
+  margin-bottom: 30px;
+}
+
+.stopPageSection h3 {
+  font-size: 16px;
+  margin-bottom: 15px;
+  font-weight: normal;
+  color: #cccccc;
+}
+
+.pageInputWrapper {
+  margin-bottom: 15px;
+}
+
+.pageNumberInput {
+  width: 100%;
+  padding: 12px;
+  background-color: #2a2a2a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: white;
+  font-size: 16px;
+}
+
+.toggleButton {
+  background-color: #2a2a2a;
+  color: white;
+  border: none;
+  border-radius: 40px;
+  padding: 10px 20px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.toggleButton:hover {
+  background-color: #333;
+}
+
+.diarySection {
+  margin-top: 30px;
+}
+
+.diarySection h3 {
+  font-size: 16px;
+  margin-bottom: 15px;
+  font-weight: normal;
+  color: #cccccc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Right Side - Book Display */
+.bookDisplaySide {
+  flex: 1;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: normal;
+  margin-bottom: 30px;
+  align-self: flex-start;
+}
+
+.bookContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  max-width: 300px;
+}
+
+.bookCover {
+  width: 200px;
+  height: 300px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.bookCover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bookTitle {
+  font-size: 20px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.authorName {
+  font-size: 16px;
+  color: #888;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.readingControls {
+  margin-top: 20px;
+}
+
+.readingButton {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  background-color: #e00;
+  color: white;
+}
+
+.stopButton {
+  background-color: #e00;
+}
+
+.startButton {
+  background-color: #e00;
+}
+
+/* Progress display styling */
+.progressDisplay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #888;
+}
+
+.progressBar {
+  width: 100%;
+  height: 4px;
+  background-color: #333;
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 5px 0;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: #4f2ee8;
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.timeRemaining {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Loading and Error States */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #1e1e1e;
+  color: white;
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #e00;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  text-align: center;
+  background-color: #1e1e1e;
+  color: white;
+}
+
+.backButton {
+  background: none;
+  border: 1px solid #4f2ee8;
+  color: #4f2ee8;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 40px;
+  margin-top: 20px;
+}
+
+.backButton:hover {
+  background-color: rgba(79, 46, 232, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .mainContent {
+    flex-direction: column;
+  }
+
+  .dashboardSide {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #333;
+  }
+}

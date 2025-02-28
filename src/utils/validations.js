@@ -32,3 +32,12 @@ export const addBookSchema = yup.object().shape({
     .required("Pages is required")
     .positive("Pages must be positive"),
 });
+export const readingPageSchema = yup.object().shape({
+  currentPage: yup
+    .string()
+    .required("Current page is required")
+    .matches(/^[0-9]+$/, "Page number must be a number")
+    .test("currentPage", "Page number must be greater than 0", (value) => {
+      return parseInt(value) > 0;
+    }),
+});

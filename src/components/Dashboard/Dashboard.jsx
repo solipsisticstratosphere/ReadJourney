@@ -4,10 +4,15 @@ import { useNavigate, Link } from "react-router-dom";
 import {
   addBookToLibraryAsync,
   loadLimitedRecommendedBooks,
+  startReadingSessionAsync,
+  stopReadingSessionAsync,
+  loadCurrentBookAsync,
 } from "../../redux/books/operations";
 import {
   selectLimitedRecommendedBooks,
   selectLimitedRecommendedBooksLoading,
+  selectCurrentBook,
+  selectIsReadingActive,
 } from "../../redux/books/selectors";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -15,9 +20,9 @@ import styles from "./Dashboard.module.css";
 import RecommendedBooks from "../RecommendedBooks/RecommendedBooks";
 import smallBooks from "../../assets/images/smallBooks.png";
 import SuccessModal from "../ModalSuccess/ModalSuccess";
-import { addBookSchema } from "../../utils/validations";
+import { addBookSchema, readingPageSchema } from "../../utils/validations";
 
-const Dashboard = ({ page, onFilterSubmit, filters }) => {
+const Dashboard = ({ page, onFilterSubmit, filters, bookId }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -27,12 +32,19 @@ const Dashboard = ({ page, onFilterSubmit, filters }) => {
     selectLimitedRecommendedBooksLoading
   );
 
+  // Reading page specific selectors
+  const currentBook = useSelector(selectCurrentBook);
+  const isReadingActive = useSelector(selectIsReadingActive);
+
   // Load limited recommendations when component mounts for library page
   useEffect(() => {
     if (page === "library") {
       dispatch(loadLimitedRecommendedBooks());
     }
-  }, [dispatch, page]);
+    if (page === "reading" && bookId) {
+      dispatch(loadCurrentBookAsync(bookId));
+    }
+  }, [dispatch, page, bookId]);
 
   // Notification state
   const [showNotification, setShowNotification] = useState(false);
@@ -44,13 +56,17 @@ const Dashboard = ({ page, onFilterSubmit, filters }) => {
   const [addedBook, setAddedBook] = useState(null);
 
   // Define schema based on page
-  const filterSchema =
-    page === "library"
-      ? addBookSchema
-      : {
-          title: "",
-          author: "",
-        };
+  const getFormSchema = () => {
+    switch (page) {
+      case "library":
+        return addBookSchema;
+      case "reading":
+        return readingPageSchema;
+      case "recommended":
+      default:
+        return {};
+    }
+  };
 
   // Setup form with react-hook-form
   const {
@@ -59,8 +75,9 @@ const Dashboard = ({ page, onFilterSubmit, filters }) => {
     formState: { errors, dirtyFields, isSubmitted },
     reset,
     watch,
+    setValue,
   } = useForm({
-    resolver: yupResolver(filterSchema),
+    resolver: yupResolver(getFormSchema()),
     mode: "onChange",
     defaultValues:
       page === "recommended"
@@ -68,12 +85,23 @@ const Dashboard = ({ page, onFilterSubmit, filters }) => {
             title: filters?.title || "",
             author: filters?.author || "",
           }
+        : page === "reading"
+        ? {
+            currentPage: currentBook?.currentPage || 0,
+          }
         : {
             title: "",
             author: "",
             pages: "",
           },
   });
+
+  // Update form values when currentBook changes
+  useEffect(() => {
+    if (page === "reading" && currentBook) {
+      setValue("currentPage", currentBook.currentPage || 0);
+    }
+  }, [currentBook, setValue, page]);
 
   // Get input container class based on validation state
   const getInputContainerClass = (fieldName) => {
@@ -91,6 +119,39 @@ const Dashboard = ({ page, onFilterSubmit, filters }) => {
   const onSubmit = async (data) => {
     if (page === "recommended") {
       onFilterSubmit(data);
+      return;
+    }
+
+    if (page === "reading") {
+      try {
+        // Toggle reading session
+        if (isReadingActive) {
+          await dispatch(
+            stopReadingSessionAsync({
+              bookId,
+              currentPage: parseInt(data.currentPage),
+            })
+          ).unwrap();
+
+          setNotificationMessage("Reading session stopped successfully");
+          setNotificationType("success");
+        } else {
+          await dispatch(
+            startReadingSessionAsync({
+              bookId,
+              startPage: parseInt(data.currentPage),
+            })
+          ).unwrap();
+
+          setNotificationMessage("Reading session started successfully");
+          setNotificationType("success");
+        }
+        setShowNotification(true);
+      } catch (error) {
+        setNotificationMessage(error || "Failed to update reading session");
+        setNotificationType("error");
+        setShowNotification(true);
+      }
       return;
     }
 
@@ -395,6 +456,121 @@ const Dashboard = ({ page, onFilterSubmit, filters }) => {
             </Link>
           </div>
         </>
+      )}
+
+      {page === "reading" && currentBook && (
+        <div className={styles.readingDashboard}>
+          <h2 className={styles.sectionTitle}>My reading</h2>
+
+          <div className={styles.bookDetails}>
+            <div className={styles.bookCover}>
+              {currentBook.coverImage ? (
+                <img
+                  src={currentBook.coverImage}
+                  alt={`${currentBook.title} cover`}
+                  className={styles.coverImage}
+                />
+              ) : (
+                <div className={styles.noCover}>
+                  <span className={styles.coverTitle}>{currentBook.title}</span>
+                  <span className={styles.coverAuthor}>
+                    {currentBook.author}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className={styles.bookInfo}>
+              <h3 className={styles.bookTitle}>{currentBook.title}</h3>
+              <p className={styles.bookAuthor}>{currentBook.author}</p>
+            </div>
+          </div>
+
+          <form
+            className={styles.readingForm}
+            onSubmit={processSubmit(onSubmit, onError)}
+          >
+            <div className={styles.startPage}>
+              <span className={styles.label}>Start page:</span>
+              <div className={getInputContainerClass("currentPage")}>
+                <input
+                  type="number"
+                  className={styles.input}
+                  min="1"
+                  max={currentBook.totalPages || 1000}
+                  placeholder="Page number"
+                  {...register("currentPage")}
+                  onKeyPress={(e) => {
+                    // Allow only digits and control keys
+                    if (
+                      !/[0-9]/.test(e.key) &&
+                      e.key !== "Backspace" &&
+                      e.key !== "Delete" &&
+                      e.key !== "ArrowLeft" &&
+                      e.key !== "ArrowRight"
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+                {(dirtyFields.currentPage || isSubmitted) && (
+                  <div className={styles.statusIcon}>
+                    {errors.currentPage ? (
+                      <svg width="20" height="20">
+                        <use href="/sprite.svg#error-icon" />
+                      </svg>
+                    ) : (
+                      <svg width="20" height="20">
+                        <use href="/sprite.svg#success-icon" />
+                      </svg>
+                    )}
+                  </div>
+                )}
+              </div>
+              {getStatusMessage("currentPage")}
+            </div>
+
+            <div className={styles.readingProgress}>
+              <div className={styles.progressInfo}>
+                <p>
+                  <span className={styles.progressLabel}>Progress:</span>
+                  <span className={styles.progressValue}>
+                    {currentBook.progress.length > 0
+                      ? currentBook.progress[currentBook.progress.length - 1]
+                          .finishPage || 0
+                      : 0}{" "}
+                    / {currentBook.totalPages || 0} pages
+                  </span>
+                </p>
+                <progress
+                  value={currentBook.currentPage || 0}
+                  max={currentBook.totalPages || 100}
+                  className={styles.progressBar}
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className={`${styles.applyButton} ${
+                isReadingActive ? styles.stopButton : styles.startButton
+              }`}
+            >
+              {isReadingActive ? "To stop" : "To start"}
+            </button>
+          </form>
+
+          <div className={styles.readingInfo}>
+            <div className={styles.infoBox}>
+              <h4 className={styles.infoTitle}>Progress</h4>
+              <p className={styles.infoText}>
+                Here you will see when and how much you read.
+                <br />
+                To record, click on the red button above.
+              </p>
+            </div>
+          </div>
+        </div>
       )}
 
       {showNotification && (

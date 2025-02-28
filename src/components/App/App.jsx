@@ -11,6 +11,7 @@ import { refreshUser } from "../../redux/auth/operations";
 import Layout from "../Layout/Layout";
 import RecommendedPage from "../../pages/RecommendPage/RecommendPage";
 import MyLibraryPage from "../../pages/MyLibraryPage/MyLibraryPage";
+import ReadingPage from "../../pages/ReadingPage/ReadingPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -47,7 +48,14 @@ function App() {
               <PrivateRoute component={<MyLibraryPage />} redirectTo="/login" />
             }
           />
+          <Route
+            path="/reading/:bookId"
+            element={
+              <PrivateRoute component={<ReadingPage />} redirectTo="/login" />
+            }
+          />
         </Route>
+
         <Route path="*" element={<Navigate to="/register" />} />
       </Routes>
     </>

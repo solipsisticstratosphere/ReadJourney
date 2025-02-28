@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Dashboard from "../../components/Dashboard/Dashboard";
 import RecommendedBooks from "../../components/RecommendedBooks/RecommendedBooks";
-// import BookDetailsModal from "../../components/BookDetailsModal/BookDetailsModal";
 
 // Импорты операций и селекторов из новой структуры
 import {
@@ -18,9 +17,11 @@ import {
 import {
   selectRecommendedBooks,
   selectRecommendedBooksLoading,
-  selectCurrentPage,
-  selectTotalPages,
-  selectFilters,
+  selectRecommendedBooksError,
+  selectRecommendedCurrentPage,
+  selectRecommendedTotalPages,
+  selectRecommendedPerPage,
+  selectBookFilters,
   selectSelectedBook,
 } from "../../redux/books/selectors";
 
@@ -33,17 +34,15 @@ const RecommendedPage = () => {
   // Select data from Redux store
   const books = useSelector(selectRecommendedBooks);
   const isLoading = useSelector(selectRecommendedBooksLoading);
-  const currentPage = useSelector(selectCurrentPage);
-  const totalPages = useSelector(selectTotalPages);
-  const filters = useSelector(selectFilters);
+  const currentPage = useSelector(selectRecommendedCurrentPage);
+  const totalPages = useSelector(selectRecommendedTotalPages);
+  const filters = useSelector(selectBookFilters);
   const selectedBook = useSelector(selectSelectedBook);
 
   // Load books on initial render and setup responsive listener
   useEffect(() => {
     const cleanupListener = dispatch(setupResponsiveListener());
     dispatch(loadRecommendedBooks());
-
-    // Устанавливаем слушатель изменения размера окна
 
     // Очищаем слушатель при размонтировании компонента
     return () => {

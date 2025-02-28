@@ -1,7 +1,12 @@
 import { useEffect, useRef } from "react";
 import styles from "./BookDetailsModal.module.css";
 
-const BookDetailsModal = ({ book, onClose, onAddToLibrary }) => {
+const BookDetailsModal = ({
+  book,
+  onClose,
+  onAddToLibrary,
+  onStartReading,
+}) => {
   const modalRef = useRef(null);
 
   useEffect(() => {
@@ -57,12 +62,25 @@ const BookDetailsModal = ({ book, onClose, onAddToLibrary }) => {
               </p>
             )}
 
-            <button
-              className={styles.addToLibraryButton}
-              onClick={() => onAddToLibrary(book.id)}
-            >
-              Add to library
-            </button>
+            {/* Show Add to library button if that callback is provided */}
+            {onAddToLibrary && (
+              <button
+                className={styles.addToLibraryButton}
+                onClick={() => onAddToLibrary(book._id)}
+              >
+                Add to library
+              </button>
+            )}
+
+            {/* Show Start reading button if that callback is provided */}
+            {onStartReading && (
+              <button
+                className={styles.addToLibraryButton}
+                onClick={() => onStartReading(book._id)}
+              >
+                Start reading
+              </button>
+            )}
           </div>
         </div>
       </div>

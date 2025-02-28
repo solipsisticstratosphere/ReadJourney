@@ -2,20 +2,25 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserLibraryAsync } from "../../redux/books/operations";
 import {
-  selectLibraryBooks,
-  selectLibraryLoading,
+  selectUserLibrary,
+  selectUserLibraryLoading,
+  selectUserLibraryError,
 } from "../../redux/books/selectors";
 import Dashboard from "../../components/Dashboard/Dashboard";
 
 import BookDetailsModal from "../../components/BookDetailsModal/BookDetailsModal";
 import styles from "./MyLibraryPage.module.css";
+import MyLibraryBooks from "../../components/MyLibraryBooks/MyLibraryBooks";
+import { useNavigate } from "react-router-dom";
 
 const MyLibraryPage = () => {
   const dispatch = useDispatch();
-  const books = useSelector(selectLibraryBooks);
-  const isLoading = useSelector(selectLibraryLoading);
+  const books = useSelector(selectUserLibrary);
+  const isLoading = useSelector(selectUserLibraryLoading);
+  const error = useSelector(selectUserLibraryError);
   const [selectedBook, setSelectedBook] = useState(null);
   const [readingFilter, setReadingFilter] = useState("all");
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(fetchUserLibraryAsync());
@@ -30,8 +35,7 @@ const MyLibraryPage = () => {
   };
 
   const handleStartReading = (bookId) => {
-    // Navigate to reading page or dispatch start reading action
-    console.log("Start reading book:", bookId);
+    navigate(`/reading/${bookId}`);
     handleCloseModal();
   };
 
@@ -47,19 +51,22 @@ const MyLibraryPage = () => {
   return (
     <div className={styles.container}>
       <Dashboard page="library" />
-      {/* <MyLibraryBooks
+      <MyLibraryBooks
         books={filteredBooks}
         isLoading={isLoading}
+        error={error}
         onBookClick={handleBookClick}
         onFilterChange={handleFilterChange}
         currentFilter={readingFilter}
-      /> */}
+      />
 
       {selectedBook && (
         <BookDetailsModal
           book={selectedBook}
           onClose={handleCloseModal}
-          onStartReading={handleStartReading}
+          onStartReading={() =>
+            handleStartReading(selectedBook._id || selectedBook.id)
+          }
         />
       )}
     </div>

@@ -91,6 +91,74 @@ const fetchUserLibraryApi = async () => {
   }
 };
 
+// Новые API функции для чтения книг
+const loadBookForReadingApi = async (bookId) => {
+  try {
+    console.log("API call with bookId:", bookId);
+    const response = await axios.get(`/books/${bookId}`);
+    console.log("API response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error);
+    throw new Error(
+      error.response?.data?.message || "Failed to load book for reading"
+    );
+  }
+};
+
+const updateReadingProgressApi = async ({ bookId, currentPage }) => {
+  try {
+    // Простое обновление текущей страницы без сессии чтения
+    const response = await axios.put(`/books/${bookId}`, {
+      currentPage: currentPage,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Failed to update reading progress"
+    );
+  }
+};
+
+const startReadingSessionApi = async ({ bookId, startPage }) => {
+  try {
+    const response = await axios.post(`/books/reading/start`, {
+      id: bookId,
+      page: startPage,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Failed to start reading session"
+    );
+  }
+};
+
+const stopReadingSessionApi = async ({ bookId, currentPage }) => {
+  try {
+    const response = await axios.post(`/books/reading/finish`, {
+      id: bookId,
+      page: currentPage,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Failed to stop reading session"
+    );
+  }
+};
+
+const removeBookFromLibraryApi = async (bookId) => {
+  try {
+    const response = await axios.post(`/books/remove/${bookId}`);
+    return bookId; // Возвращаем ID удаленной книги для обновления состояния
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Failed to remove book from library"
+    );
+  }
+};
+
 // Async thunks
 export const fetchRecommendedBooksAsync = createAsyncThunk(
   "books/fetchRecommended",
@@ -131,6 +199,77 @@ export const fetchUserLibraryAsync = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       return await fetchUserLibraryApi();
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Новые thunk для функциональности чтения
+export const loadBookForReadingAsync = createAsyncThunk(
+  "books/loadBookForReading",
+  async (bookId, { rejectWithValue }) => {
+    try {
+      console.log("Thunk with bookId:", bookId);
+      const result = await loadBookForReadingApi(bookId);
+      console.log("Thunk result:", result);
+      return result;
+    } catch (error) {
+      console.error("Thunk error:", error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const loadCurrentBookAsync = createAsyncThunk(
+  "books/loadCurrentBook",
+  async (bookId, { rejectWithValue }) => {
+    try {
+      return await loadBookForReadingApi(bookId);
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateReadingProgressAsync = createAsyncThunk(
+  "books/updateReadingProgress",
+  async ({ bookId, currentPage }, { rejectWithValue }) => {
+    try {
+      return await updateReadingProgressApi({ bookId, currentPage });
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const startReadingSessionAsync = createAsyncThunk(
+  "books/startReadingSession",
+  async ({ bookId, startPage }, { rejectWithValue }) => {
+    try {
+      return await startReadingSessionApi({ bookId, startPage });
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const stopReadingSessionAsync = createAsyncThunk(
+  "books/stopReadingSession",
+  async ({ bookId, currentPage }, { rejectWithValue }) => {
+    try {
+      return await stopReadingSessionApi({ bookId, currentPage });
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const removeBookFromLibraryAsync = createAsyncThunk(
+  "books/removeFromLibrary",
+  async (bookId, { rejectWithValue }) => {
+    try {
+      return await removeBookFromLibraryApi(bookId);
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -211,4 +350,9 @@ export const addBookAndCloseModal = (bookId) => async (dispatch) => {
 
 export const clearSelectedBook = () => (dispatch) => {
   dispatch({ type: "books/clearSelectedBook" });
+};
+
+export const removeBookAndRefresh = (bookId) => async (dispatch) => {
+  await dispatch(removeBookFromLibraryAsync(bookId));
+  dispatch(fetchUserLibraryAsync());
 };

@@ -1,0 +1,107 @@
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.filterContainer {
+  position: relative;
+}
+
+.filterSelect {
+  background-color: #1e1e1e;
+  border: 1px solid rgba(249, 249, 249, 0.2);
+  border-radius: 8px;
+  padding: 8px 32px 8px 12px;
+  color: var(--primary-text-color);
+  font-size: 14px;
+  appearance: none;
+  cursor: pointer;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.filterContainer::after {
+  content: "▼";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 10px;
+  color: #888;
+}
+
+.booksGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 24px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 18px;
+  color: #888;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.emptyStateIcon {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 24px;
+}
+
+.emptyStateText {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #888;
+  max-width: 400px;
+}
+
+.highlight {
+  color: var(--primary-color);
+}
+
+@media screen and (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .booksGrid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+  }
+}
