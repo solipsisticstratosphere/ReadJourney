@@ -11,6 +11,7 @@ import {
   startReadingSessionAsync,
   stopReadingSessionAsync,
   removeBookFromLibraryAsync,
+  deleteReadingSession,
 } from "./operations";
 
 const initialState = {
@@ -246,6 +247,19 @@ const booksSlice = createSlice({
       .addCase(stopReadingSessionAsync.rejected, (state, action) => {
         state.reading.error =
           action.payload || "Произошла ошибка при завершении сессии чтения";
+      })
+      .addCase(deleteReadingSession.fulfilled, (state, action) => {
+        // Ensure we're updating the current book's progress
+        if (state.reading.currentBook && state.reading.currentBook.progress) {
+          state.reading.currentBook.progress =
+            state.reading.currentBook.progress.filter(
+              (session) => session._id !== action.payload.readingId
+            );
+        }
+      })
+      .addCase(deleteReadingSession.rejected, (state, action) => {
+        state.reading.error =
+          action.payload || "Произошла ошибка при удалении сессии чтения";
       });
   },
 });

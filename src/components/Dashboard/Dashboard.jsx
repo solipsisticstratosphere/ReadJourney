@@ -7,6 +7,8 @@ import {
   startReadingSessionAsync,
   stopReadingSessionAsync,
   loadCurrentBookAsync,
+  deleteReadingSession,
+  loadBookForReadingAsync,
 } from "../../redux/books/operations";
 import {
   selectLimitedRecommendedBooks,
@@ -19,6 +21,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import styles from "./Dashboard.module.css";
 import RecommendedBooks from "../RecommendedBooks/RecommendedBooks";
 import smallBooks from "../../assets/images/smallBooks.png";
+import star from "../../assets/images/star.png";
 import SuccessModal from "../ModalSuccess/ModalSuccess";
 import { addBookSchema, readingPageSchema } from "../../utils/validations";
 
@@ -35,8 +38,147 @@ const Dashboard = ({ page, onFilterSubmit, filters, bookId }) => {
   // Reading page specific selectors
   const currentBook = useSelector(selectCurrentBook);
   const isReadingActive = useSelector(selectIsReadingActive);
+  const [activeView, setActiveView] = useState("statistics");
 
+  const totalPagesRead = currentBook?.progress
+    ? currentBook.progress.reduce(
+        (total, session) =>
+          total + (session.finishPage - session.startPage + 1),
+        0
+      )
+    : 0;
+
+  // Calculate total pages in the book
+  const totalPages = currentBook?.totalPages || 0;
+
+  // Calculate percentage of book read
+  const calculatePercentage = () => {
+    // If reading is active and no previous progress, show 100%
+    if (isReadingActive && totalPagesRead === 0) {
+      return 100;
+    }
+
+    // Ensure we don't divide by zero and handle NaN
+    if (totalPages > 0) {
+      const percentage = Math.min((totalPagesRead / totalPages) * 100, 100);
+      return isNaN(percentage) ? 0 : Number(percentage.toFixed(2));
+    }
+
+    return 0;
+  };
+
+  const percentageRead = calculatePercentage();
+
+  // Safely calculate SVG circle properties
+  const radius = 80;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = isNaN(percentageRead)
+    ? circumference
+    : circumference - (percentageRead / 100) * circumference;
   // Load limited recommendations when component mounts for library page
+
+  const processProgressData = () => {
+    if (!currentBook || !currentBook.progress) return [];
+
+    // First, process individual entries
+    const processedEntries = currentBook.progress
+      .filter((entry) => entry.finishReading) // Только завершенные сессии
+      .map((entry) => {
+        const readingTime = Math.round(
+          (new Date(entry.finishReading) - new Date(entry.startReading)) / 60000
+        );
+        const pageCount = entry.finishPage - entry.startPage;
+        const readingDate = new Date(entry.finishReading)
+          .toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          })
+          .replace(/\//g, ".");
+
+        return {
+          ...entry,
+          date: readingDate,
+          pages: pageCount,
+          percentage: Number(
+            ((pageCount / currentBook.totalPages) * 100).toFixed(2)
+          ),
+          time: readingTime,
+          pagesPerHour: Math.round(pageCount / (readingTime / 60) || 0),
+        };
+      })
+      .sort((a, b) => {
+        const [day1, month1, year1] = a.date.split(".");
+        const [day2, month2, year2] = b.date.split(".");
+        return (
+          new Date(`${year2}-${month2}-${day2}`) -
+          new Date(`${year1}-${month1}-${day1}`)
+        );
+      });
+
+    // Group entries by date and calculate total pages for each date
+    const processedEntriesWithTotals = processedEntries.reduce((acc, entry) => {
+      // Find if this date already exists in the accumulator
+      const existingDateEntry = acc.find((e) => e.date === entry.date);
+
+      if (existingDateEntry) {
+        // If date exists, update its total pages
+        existingDateEntry.totalDatePages += entry.pages;
+        existingDateEntry.entries.push(entry);
+      } else {
+        // If date doesn't exist, create a new entry
+        acc.push({
+          ...entry,
+          totalDatePages: entry.pages,
+          entries: [entry],
+        });
+      }
+
+      return acc;
+    }, []);
+
+    // Sort the final processed entries
+    return processedEntriesWithTotals.sort((a, b) => {
+      const [day1, month1, year1] = a.date.split(".");
+      const [day2, month2, year2] = b.date.split(".");
+      return (
+        new Date(`${year2}-${month2}-${day2}`) -
+        new Date(`${year1}-${month1}-${day1}`)
+      );
+    });
+  };
+
+  const processedProgressData = processProgressData();
+  const processedEntriesWithDateFlag = processedProgressData.map(
+    (entry, index, array) => ({
+      ...entry,
+      shouldShowDate: true, // Always show date for grouped entries
+    })
+  );
+  const handleDeleteSession = (readingId) => {
+    if (currentBook && currentBook._id) {
+      // Optimistically update the UI
+      const updatedProgress = currentBook.progress.filter(
+        (session) => session._id !== readingId
+      );
+
+      // Dispatch the delete action
+      dispatch(
+        deleteReadingSession({
+          bookId: currentBook._id,
+          readingId: readingId,
+        })
+      );
+
+      // Update the local state immediately
+      dispatch(
+        loadBookForReadingAsync.fulfilled({
+          ...currentBook,
+          progress: updatedProgress,
+        })
+      );
+    }
+  };
   useEffect(() => {
     if (page === "library") {
       dispatch(loadLimitedRecommendedBooks());
@@ -50,11 +192,18 @@ const Dashboard = ({ page, onFilterSubmit, filters, bookId }) => {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationType, setNotificationType] = useState(""); // "success" or "error"
-
+  const toggleView = (view) => {
+    setActiveView(view);
+  };
   // Success modal state
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [addedBook, setAddedBook] = useState(null);
-
+  let hasProgress = false;
+  if (page === "reading" && currentBook) {
+    hasProgress = currentBook.progress
+      ? currentBook.progress.length > 0
+      : false;
+  }
   // Define schema based on page
   const getFormSchema = () => {
     switch (page) {
@@ -87,7 +236,11 @@ const Dashboard = ({ page, onFilterSubmit, filters, bookId }) => {
           }
         : page === "reading"
         ? {
-            currentPage: currentBook?.currentPage || 0,
+            currentPage:
+              currentBook.progress?.length > 0
+                ? currentBook.progress[currentBook.progress.length - 1]
+                    .finishPage
+                : 1,
           }
         : {
             title: "",
@@ -99,7 +252,12 @@ const Dashboard = ({ page, onFilterSubmit, filters, bookId }) => {
   // Update form values when currentBook changes
   useEffect(() => {
     if (page === "reading" && currentBook) {
-      setValue("currentPage", currentBook.currentPage || 0);
+      setValue(
+        "currentPage",
+        currentBook.progress?.length > 0
+          ? currentBook.progress[currentBook.progress.length - 1].finishPage
+          : 1
+      );
     }
   }, [currentBook, setValue, page]);
 
@@ -460,119 +618,220 @@ const Dashboard = ({ page, onFilterSubmit, filters, bookId }) => {
 
       {page === "reading" && currentBook && (
         <div className={styles.readingDashboard}>
-          <h2 className={styles.sectionTitle}>My reading</h2>
+          <div className={styles.filtersFormReadingView}>
+            <span className={styles.sectionTitle}>Start page:</span>
+            <div className={styles.inputGroup}>
+              <div className={styles.inputField}>
+                <div className={getInputContainerClass("currentPage")}>
+                  <input
+                    type="text"
+                    className={styles.inputReading}
+                    min="1"
+                    max={currentBook.totalPages || 1000}
+                    placeholder="Page number"
+                    {...register("currentPage")}
+                    onKeyPress={(e) => {
+                      // Allow only digits and control keys
+                      if (
+                        !/[0-9]/.test(e.key) &&
+                        e.key !== "Backspace" &&
+                        e.key !== "Delete" &&
+                        e.key !== "ArrowLeft" &&
+                        e.key !== "ArrowRight"
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
+                  />
+                  {(dirtyFields.currentPage || isSubmitted) && (
+                    <div className={styles.statusIcon}>
+                      {errors.currentPage ? (
+                        <svg width="20" height="20">
+                          <use href="/sprite.svg#error-icon" />
+                        </svg>
+                      ) : (
+                        <svg width="20" height="20">
+                          <use href="/sprite.svg#success-icon" />
+                        </svg>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
 
-          <div className={styles.bookDetails}>
-            <div className={styles.bookCover}>
-              {currentBook.coverImage ? (
-                <img
-                  src={currentBook.coverImage}
-                  alt={`${currentBook.title} cover`}
-                  className={styles.coverImage}
-                />
-              ) : (
-                <div className={styles.noCover}>
-                  <span className={styles.coverTitle}>{currentBook.title}</span>
-                  <span className={styles.coverAuthor}>
-                    {currentBook.author}
-                  </span>
+          <button
+            type="submit"
+            className={`${styles.readingButton} ${
+              isReadingActive ? styles.stopButton : styles.startButton
+            }`}
+            onClick={processSubmit(onSubmit, onError)}
+          >
+            {isReadingActive ? "To stop" : "To start"}
+          </button>
+          {hasProgress ? (
+            // Если есть прогресс, показываем режимы Statistics и Diary
+            <>
+              <div className={styles.progressSection}>
+                <div className={styles.viewToggle}>
+                  <h4 className={styles.progressTitle}>
+                    {activeView === "statistics" ? "Statistics" : "Diary"}
+                  </h4>
+                  <div className={styles.viewButtons}>
+                    <button
+                      className={`${styles.toggleButton} ${
+                        activeView === "diary" ? styles.active : ""
+                      }`}
+                      onClick={() => toggleView("diary")}
+                    >
+                      {/* SVG иконка для Diary */}
+                      <svg width="20" height="20">
+                        <use href="/sprite.svg#diary" />
+                      </svg>
+                    </button>
+                    <button
+                      className={`${styles.toggleButton} ${
+                        activeView === "statistics" ? styles.active : ""
+                      }`}
+                      onClick={() => toggleView("statistics")}
+                    >
+                      {/* SVG иконка для Statistics */}
+                      <svg width="20" height="20">
+                        <use href="/sprite.svg#statistics" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                {activeView === "statistics" && (
+                  <p className={styles.progressTextNew}>
+                    Each page, each chapter is a new round of knowledge, a new
+                    step towards understanding. By rewriting statistics, we
+                    create our own reading history.
+                  </p>
+                )}
+
+                {/* Переключатель между режимами */}
+              </div>
+
+              {/* Содержимое в зависимости от выбранного режима */}
+              {activeView === "statistics" && (
+                <div className={styles.statisticsContent}>
+                  <div className={styles.progressCircleContainer}>
+                    <svg
+                      className={styles.progressCircleSvg}
+                      viewBox="0 0 180 180"
+                    >
+                      {/* Background circle */}
+                      <circle
+                        cx="90"
+                        cy="90"
+                        r="80"
+                        fill="none"
+                        stroke="#2C2C2C"
+                        strokeWidth="16"
+                      />
+                      {/* Progress circle */}
+                      <circle
+                        cx="90"
+                        cy="90"
+                        r="80"
+                        fill="none"
+                        stroke="#3CBF3C"
+                        strokeWidth="16"
+                        strokeDasharray={circumference.toString()}
+                        strokeDashoffset={strokeDashoffset.toString()}
+                        style={{
+                          transition: "stroke-dashoffset 0.5s ease-in-out",
+                          transform: "rotate(-90deg)",
+                          transformOrigin: "50% 50%",
+                        }}
+                      />
+                    </svg>
+                    <div className={styles.progressContent}>
+                      <div className={styles.percentage}>
+                        {isReadingActive && totalPagesRead === 0
+                          ? "100%"
+                          : `${percentageRead || 0}%`}
+                      </div>
+                      <div className={styles.secondaryProgress}>
+                        <span className={styles.pagesRead}>
+                          {isReadingActive && totalPagesRead === 0
+                            ? "Reading session started"
+                            : `${totalPagesRead || 0} pages read`}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
-            </div>
 
-            <div className={styles.bookInfo}>
-              <h3 className={styles.bookTitle}>{currentBook.title}</h3>
-              <p className={styles.bookAuthor}>{currentBook.author}</p>
-            </div>
-          </div>
+              {activeView === "diary" && (
+                <div className={styles.diaryContent}>
+                  {processedEntriesWithDateFlag.map((dateEntry, index) => (
+                    <div key={index} className={styles.diaryEntry}>
+                      <div className={styles.headerRow}>
+                        <div className={styles.entryDate}>
+                          {dateEntry.date}
+                          <div className={styles.pageCount}>
+                            {dateEntry.totalDatePages} pages
+                          </div>
+                        </div>
+                      </div>
 
-          <form
-            className={styles.readingForm}
-            onSubmit={processSubmit(onSubmit, onError)}
-          >
-            <div className={styles.startPage}>
-              <span className={styles.label}>Start page:</span>
-              <div className={getInputContainerClass("currentPage")}>
-                <input
-                  type="number"
-                  className={styles.input}
-                  min="1"
-                  max={currentBook.totalPages || 1000}
-                  placeholder="Page number"
-                  {...register("currentPage")}
-                  onKeyPress={(e) => {
-                    // Allow only digits and control keys
-                    if (
-                      !/[0-9]/.test(e.key) &&
-                      e.key !== "Backspace" &&
-                      e.key !== "Delete" &&
-                      e.key !== "ArrowLeft" &&
-                      e.key !== "ArrowRight"
-                    ) {
-                      e.preventDefault();
-                    }
-                  }}
-                />
-                {(dirtyFields.currentPage || isSubmitted) && (
-                  <div className={styles.statusIcon}>
-                    {errors.currentPage ? (
-                      <svg width="20" height="20">
-                        <use href="/sprite.svg#error-icon" />
-                      </svg>
-                    ) : (
-                      <svg width="20" height="20">
-                        <use href="/sprite.svg#success-icon" />
-                      </svg>
-                    )}
-                  </div>
-                )}
-              </div>
-              {getStatusMessage("currentPage")}
-            </div>
-
-            <div className={styles.readingProgress}>
-              <div className={styles.progressInfo}>
-                <p>
-                  <span className={styles.progressLabel}>Progress:</span>
-                  <span className={styles.progressValue}>
-                    {currentBook.progress.length > 0
-                      ? currentBook.progress[currentBook.progress.length - 1]
-                          .finishPage || 0
-                      : 0}{" "}
-                    / {currentBook.totalPages || 0} pages
-                  </span>
+                      {dateEntry.entries.map((entry, entryIndex) => (
+                        <div key={entryIndex} className={styles.detailsRow}>
+                          <div className={styles.progressBar}>
+                            <div
+                              className={styles.progressFill}
+                              style={{ width: `${entry.percentage}%` }}
+                            ></div>
+                          </div>
+                          <div className={styles.percentage}>
+                            {entry.percentage}%
+                            <div className={styles.readingTime}>
+                              {entry.time} minutes
+                            </div>
+                          </div>
+                          <div className={styles.imgAndButton}>
+                            <div className={styles.readingSpeed}>
+                              {entry.pagesPerHour} pages/hr
+                            </div>
+                            <button
+                              className={styles.deleteButton}
+                              onClick={() => handleDeleteSession(entry._id)}
+                            >
+                              <div className={styles.deleteIcon}></div>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            // Если прогресса нет, показываем базовую информацию
+            <>
+              <div className={styles.progressSection}>
+                <h4 className={styles.progressTitle}>Progress</h4>
+                <p className={styles.progressText}>
+                  Here you will see when and how much you read.
+                  <br />
+                  To record, click on the red button above.
                 </p>
-                <progress
-                  value={currentBook.currentPage || 0}
-                  max={currentBook.totalPages || 100}
-                  className={styles.progressBar}
-                />
               </div>
-            </div>
-
-            <button
-              type="submit"
-              className={`${styles.applyButton} ${
-                isReadingActive ? styles.stopButton : styles.startButton
-              }`}
-            >
-              {isReadingActive ? "To stop" : "To start"}
-            </button>
-          </form>
-
-          <div className={styles.readingInfo}>
-            <div className={styles.infoBox}>
-              <h4 className={styles.infoTitle}>Progress</h4>
-              <p className={styles.infoText}>
-                Here you will see when and how much you read.
-                <br />
-                To record, click on the red button above.
-              </p>
-            </div>
-          </div>
+              <div className={styles.starContainer}>
+                <div className={styles.starIconWrapper}>
+                  <img src={star} className={styles.starImage} alt="Books" />
+                </div>
+              </div>
+            </>
+          )}
+          {/* Звездочка отображается в любом случае */}
         </div>
       )}
-
       {showNotification && (
         <div className={`${styles.notification} ${styles[notificationType]}`}>
           <p>{notificationMessage}</p>

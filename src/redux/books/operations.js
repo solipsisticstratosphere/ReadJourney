@@ -1,4 +1,4 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { createAction, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Функция для определения количества книг в зависимости от ширины экрана
@@ -147,7 +147,25 @@ const stopReadingSessionApi = async ({ bookId, currentPage }) => {
     );
   }
 };
+export const deleteReadingSession = createAsyncThunk(
+  "books/deleteReadingSession",
+  async ({ bookId, readingId }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axios.delete("/books/reading", {
+        params: {
+          bookId: bookId,
+          readingId: readingId,
+        },
+      });
 
+      return { bookId, readingId };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: "Delete failed" }
+      );
+    }
+  }
+);
 const removeBookFromLibraryApi = async (bookId) => {
   try {
     const response = await axios.post(`/books/remove/${bookId}`);

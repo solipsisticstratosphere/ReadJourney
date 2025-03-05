@@ -118,10 +118,7 @@ const ReadingPage = () => {
       <div className={styles.mainContent}>
         {/* Left side - Dashboard */}
 
-        <div className={styles.diarySection}>
-          <h3>Diary</h3>
-          <Dashboard page="reading" bookId={bookId} />
-        </div>
+        <Dashboard page="reading" bookId={bookId} />
 
         {/* Right side - Book display */}
         <div className={styles.bookDisplaySide}>

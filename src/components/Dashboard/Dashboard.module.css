@@ -41,6 +41,12 @@
   gap: 8px;
   margin-bottom: 58px;
 }
+.filtersFormReadingView {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
 .inputGroup {
   position: relative;
   display: flex;
@@ -88,7 +94,19 @@
   outline: none;
   border-color: rgba(255, 255, 255, 0.4);
 }
-
+.inputReading {
+  flex: 1;
+  padding: 16px 15px 16px 15px;
+  background-color: transparent;
+  border: none;
+  color: var(--primary-text-color);
+  font-size: 1rem;
+  outline: none;
+  width: 100%; /* Ensure input respects container width */
+  box-sizing: border-box; /* Include padding in width calculation */
+  overflow: hidden; /* Prevent overflow */
+  text-overflow: ellipsis; /* Add ellipsis for text that might overflow */
+}
 .applyButton {
   width: 122px;
   background-color: transparent;
@@ -104,7 +122,22 @@
   margin-top: 12px;
   transition: background-color 0.3s;
 }
+.readingButton {
+  width: 122px;
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 
+  color: var(--primary-text-color);
+  border-radius: 30px;
+  padding: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  transition: background-color 0.3s;
+  margin-bottom: 40px;
+}
 .applyButton:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
@@ -266,7 +299,7 @@
 .inputContainer {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: baseline;
   width: 100%;
   background-color: var(--secondary-color-2);
   border: none;
@@ -330,6 +363,256 @@
 .successModal {
   padding: 2rem;
   text-align: center;
+}
+.progressSection {
+}
+.progressTitle {
+  text-align: start;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 100%;
+  margin-bottom: 14px;
+}
+.progressText {
+  text-align: start;
+  color: var(--primary-color-grey);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 129%;
+  margin-bottom: 60px;
+}
+.progressTextNew {
+  width: 310px;
+  text-align: start;
+  color: var(--primary-color-grey);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 129%;
+  margin-bottom: 20px;
+}
+.starImage {
+  height: 50px;
+  width: 50px;
+}
+.starIconWrapper {
+  border-width: 0px;
+  border: solid #262626;
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+  fill: #262626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.starContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px;
+}
+.statisticsContent {
+  border-radius: 12px;
+  background-color: var(--secondary-color-2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+}
+
+.progressCircleContainer {
+  position: relative;
+  width: 240px;
+  height: 240px;
+}
+
+.progressCircleSvg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.viewButtons {
+  display: flex;
+}
+.progressContent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.percentage {
+  font-size: 36px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.secondaryProgress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.secondaryPercentage {
+  font-size: 16px;
+  color: #3cbf3c;
+  margin-bottom: 5px;
+}
+
+.pagesRead {
+  font-size: 14px;
+  color: var(--primary-color-grey);
+}
+.toggleButton {
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border-radius: 8px;
+}
+
+.toggleButton svg {
+  width: 20px;
+  height: 20px;
+  fill: #9ca3af; /* Inactive state color - a soft gray */
+  transition: fill 0.3s ease;
+}
+
+.toggleButton:hover {
+  background-color: rgba(75, 85, 99, 0.1); /* Slight background on hover */
+}
+
+.toggleButton.active svg {
+  fill: var(--primary-color-blue); /* Blue color for active state */
+}
+.viewToggle {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between; /* This will push the buttons to the right */
+  align-items: baseline;
+  width: 100%; /* Full width of the container */
+  height: 40px;
+  background-color: transparent;
+  border: none;
+  transition: background-color 0.3s ease;
+  gap: 8px; /* Adds some space between buttons */
+}
+.diaryContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.diaryEntry {
+  padding: 20px;
+  background-color: var(--secondary-color-2);
+  border-radius: 12px;
+}
+
+.entryContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+}
+
+.entryDate {
+  display: flex;
+  justify-content: space-between;
+  color: #ffffff;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.pageCount {
+  color: rgba(255, 255, 255, 0.5);
+}
+.detailsRow {
+  display: flex;
+  flex-direction: row;
+}
+.entryDetails {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.percentage {
+  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  color: var(--primary-text-color);
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 100%;
+}
+.imgAndButton {
+  margin-left: auto;
+  display: flex;
+}
+.readingTime {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+}
+
+.readingSpeed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+}
+
+.speedTrend {
+  width: 12px;
+  height: 12px;
+  background: #00ff84;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  transform: rotate(180deg);
+}
+
+.deleteButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.deleteIcon {
+  width: 16px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.latestDateHeader {
+  /* Special styling for the header of the latest date */
+  font-weight: bold;
+  color: ;
+}
+
+.latestDateDetails {
+  /* Optional: special styling for details of the latest date */
+  background-color: ;
+}
+.entryDate {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 112%;
 }
 
 @keyframes slideIn {
