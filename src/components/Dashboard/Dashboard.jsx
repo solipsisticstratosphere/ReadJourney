@@ -25,7 +25,13 @@ import star from "../../assets/images/star.png";
 import SuccessModal from "../ModalSuccess/ModalSuccess";
 import { addBookSchema, readingPageSchema } from "../../utils/validations";
 
-const Dashboard = ({ page, onFilterSubmit, filters, bookId }) => {
+const Dashboard = ({
+  page,
+  onFilterSubmit,
+  filters,
+  bookId,
+  externalFormControl,
+}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -237,10 +243,11 @@ const Dashboard = ({ page, onFilterSubmit, filters, bookId }) => {
         : page === "reading"
         ? {
             currentPage:
-              currentBook.progress?.length > 0
+              externalFormControl?.initialPage ||
+              (currentBook.progress?.length > 0
                 ? currentBook.progress[currentBook.progress.length - 1]
                     .finishPage
-                : 1,
+                : 1),
           }
         : {
             title: "",
@@ -254,12 +261,13 @@ const Dashboard = ({ page, onFilterSubmit, filters, bookId }) => {
     if (page === "reading" && currentBook) {
       setValue(
         "currentPage",
-        currentBook.progress?.length > 0
-          ? currentBook.progress[currentBook.progress.length - 1].finishPage
-          : 1
+        externalFormControl?.initialPage ||
+          (currentBook.progress?.length > 0
+            ? currentBook.progress[currentBook.progress.length - 1].finishPage
+            : 1)
       );
     }
-  }, [currentBook, setValue, page]);
+  }, [currentBook, setValue, page, externalFormControl?.initialPage]);
 
   // Get input container class based on validation state
   const getInputContainerClass = (fieldName) => {
@@ -281,8 +289,28 @@ const Dashboard = ({ page, onFilterSubmit, filters, bookId }) => {
     }
 
     if (page === "reading") {
+      // Используем внешний обработчик, если он передан
+      if (externalFormControl?.onSubmit) {
+        try {
+          await externalFormControl.onSubmit(data);
+
+          setNotificationMessage(
+            externalFormControl.isReadingActive
+              ? "Reading session stopped successfully"
+              : "Reading session started successfully"
+          );
+          setNotificationType("success");
+          setShowNotification(true);
+        } catch (error) {
+          setNotificationMessage(error || "Failed to update reading session");
+          setNotificationType("error");
+          setShowNotification(true);
+        }
+        return;
+      }
+
+      // Существующая логика, если внешний обработчик не передан
       try {
-        // Toggle reading session
         if (isReadingActive) {
           await dispatch(
             stopReadingSessionAsync({
@@ -627,7 +655,11 @@ const Dashboard = ({ page, onFilterSubmit, filters, bookId }) => {
                     type="text"
                     className={styles.inputReading}
                     min="1"
-                    max={currentBook.totalPages || 1000}
+                    max={
+                      externalFormControl?.totalPages ||
+                      currentBook?.totalPages ||
+                      1000
+                    }
                     placeholder="Page number"
                     {...register("currentPage")}
                     onKeyPress={(e) => {
@@ -775,10 +807,12 @@ const Dashboard = ({ page, onFilterSubmit, filters, bookId }) => {
                           className={styles.entryDate}
                           style={{
                             color:
+                              processedEntriesWithDateFlag.length === 1 ||
                               index === processedEntriesWithDateFlag.length - 1
-                                ? ""
+                                ? "var(--primary-text-color)"
                                 : "var(--primary-text-color)",
                           }}
+                          ё
                         >
                           <div className={styles.entryDateText}>
                             <svg

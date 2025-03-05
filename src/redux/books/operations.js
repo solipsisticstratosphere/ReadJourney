@@ -60,16 +60,32 @@ const fetchLimitedRecommendedBooksApi = async () => {
   }
 };
 
-const addBookToLibraryApi = async (bookData) => {
+const addBookToLibraryApi = async (bookData, currentLibrary) => {
+  // Determine the book ID
+  const bookId = typeof bookData === "object" ? bookData._id : bookData;
+
+  // More comprehensive check for book duplication
+  const isBookInLibrary = currentLibrary.some(
+    (book) =>
+      book._id === bookId ||
+      (typeof bookData === "object" &&
+        bookData.title &&
+        book.title === bookData.title)
+  );
+
+  if (isBookInLibrary) {
+    // Throw a more specific error for UI handling
+    const error = new Error("This book is already in your library");
+    error.name = "DuplicateBookError";
+    throw error;
+  }
+
   try {
-    // If bookData is an object with book details, send POST request to /books/add
-    // If bookData is just an ID, use the existing endpoint
+    // Existing book addition logic remains the same
     if (typeof bookData === "object" && bookData.title) {
       const response = await axios.post("/books/add", bookData);
       return response.data;
     } else {
-      // Original implementation for adding existing books by ID
-      const bookId = bookData;
       const response = await axios.post(`/books/add/${bookId}`);
       return response.data;
     }
@@ -168,7 +184,7 @@ export const deleteReadingSession = createAsyncThunk(
 );
 const removeBookFromLibraryApi = async (bookId) => {
   try {
-    const response = await axios.post(`/books/remove/${bookId}`);
+    const response = await axios.delete(`/books/remove/${bookId}`);
     return bookId; // Возвращаем ID удаленной книги для обновления состояния
   } catch (error) {
     throw new Error(
@@ -203,15 +219,20 @@ export const fetchLimitedRecommendedBooksAsync = createAsyncThunk(
 
 export const addBookToLibraryAsync = createAsyncThunk(
   "books/addToLibrary",
-  async (bookData, { rejectWithValue }) => {
+  async (bookData, { rejectWithValue, getState }) => {
     try {
-      return await addBookToLibraryApi(bookData);
+      const currentLibrary = getState().books.library.items;
+
+      return await addBookToLibraryApi(bookData, currentLibrary);
     } catch (error) {
+      // Special handling for duplicate book error
+      if (error.name === "DuplicateBookError") {
+        return rejectWithValue("This book is already in your library");
+      }
       return rejectWithValue(error.message);
     }
   }
 );
-
 export const fetchUserLibraryAsync = createAsyncThunk(
   "books/fetchUserLibrary",
   async (_, { rejectWithValue }) => {
@@ -374,3 +395,4 @@ export const removeBookAndRefresh = (bookId) => async (dispatch) => {
   await dispatch(removeBookFromLibraryAsync(bookId));
   dispatch(fetchUserLibraryAsync());
 };
+``;

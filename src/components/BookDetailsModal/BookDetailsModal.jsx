@@ -6,6 +6,7 @@ const BookDetailsModal = ({
   onClose,
   onAddToLibrary,
   onStartReading,
+  addBookError, // Error from Redux state
 }) => {
   const modalRef = useRef(null);
 
@@ -45,7 +46,7 @@ const BookDetailsModal = ({
         <div className={styles.modalContent}>
           <div className={styles.bookCoverContainer}>
             <img
-              src={book.imageUrl || "/images/book-placeholder.jpg"}
+              src={book.imageUrl || "/src/assets/images/book-placeholder.jpg"}
               alt={book.title}
               className={styles.bookCover}
             />
@@ -62,11 +63,23 @@ const BookDetailsModal = ({
               </p>
             )}
 
+            {/* Improved error handling */}
+            {addBookError && (
+              <p className={styles.errorMessage}>
+                {addBookError === "This book is already in your library"
+                  ? "This book is already in your library"
+                  : addBookError}
+              </p>
+            )}
+
             {/* Show Add to library button if that callback is provided */}
             {onAddToLibrary && (
               <button
                 className={styles.addToLibraryButton}
-                onClick={() => onAddToLibrary(book._id)}
+                onClick={() => onAddToLibrary(book._id || book.id)}
+                disabled={
+                  addBookError === "This book is already in your library"
+                }
               >
                 Add to library
               </button>
@@ -76,7 +89,7 @@ const BookDetailsModal = ({
             {onStartReading && (
               <button
                 className={styles.addToLibraryButton}
-                onClick={() => onStartReading(book._id)}
+                onClick={() => onStartReading(book._id || book.id)}
               >
                 Start reading
               </button>

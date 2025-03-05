@@ -1,6 +1,10 @@
 import { useDispatch } from "react-redux";
 import styles from "./MyLibraryBooks.module.css";
 import BookCard from "../BookCard/BookCard";
+import {
+  removeBookAndRefresh,
+  removeBookFromLibraryAsync,
+} from "../../redux/books/operations";
 
 const MyLibraryBooks = ({
   books,
@@ -13,9 +17,7 @@ const MyLibraryBooks = ({
   const dispatch = useDispatch();
 
   const handleRemoveBook = (bookId) => {
-    // Dispatch action to remove book
-    // This would need to be implemented in the redux operations
-    console.log("Remove book:", bookId);
+    dispatch(removeBookAndRefresh(bookId));
   };
 
   if (error) {
@@ -51,7 +53,8 @@ const MyLibraryBooks = ({
               key={book.id || book._id}
               book={book}
               onClick={() => onBookClick(book)}
-              onRemove={() => handleRemoveBook(book.id || book._id)}
+              isLibraryView={true}
+              onRemove={handleRemoveBook}
             />
           ))}
         </div>

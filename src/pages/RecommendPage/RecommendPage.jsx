@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import Dashboard from "../../components/Dashboard/Dashboard";
 import RecommendedBooks from "../../components/RecommendedBooks/RecommendedBooks";
 
-// Импорты операций и селекторов из новой структуры
 import {
   loadRecommendedBooks,
   changeRecommendedPage,
@@ -12,6 +11,7 @@ import {
   addBookAndCloseModal,
   clearSelectedBook,
   setupResponsiveListener,
+  addBookToLibraryAsync,
 } from "../../redux/books/operations";
 
 import {
@@ -23,7 +23,10 @@ import {
   selectRecommendedPerPage,
   selectBookFilters,
   selectSelectedBook,
+  selectLibraryAddBookError, // Import the new selector
 } from "../../redux/books/selectors";
+
+import { clearAddBookError } from "../../redux/books/slice"; // Import the new action
 
 import styles from "./RecommendedPage.module.css";
 import BookDetailsModal from "../../components/BookDetailsModal/BookDetailsModal";
@@ -38,6 +41,7 @@ const RecommendedPage = () => {
   const totalPages = useSelector(selectRecommendedTotalPages);
   const filters = useSelector(selectBookFilters);
   const selectedBook = useSelector(selectSelectedBook);
+  const addBookError = useSelector(selectLibraryAddBookError); // New selector
 
   // Load books on initial render and setup responsive listener
   useEffect(() => {
@@ -51,6 +55,13 @@ const RecommendedPage = () => {
       }
     };
   }, [dispatch]);
+
+  // Clear add book error when modal is closed
+  useEffect(() => {
+    if (!selectedBook) {
+      dispatch(clearAddBookError());
+    }
+  }, [selectedBook, dispatch]);
 
   // Handlers
   const handlePageChange = (newPage) => {
@@ -70,7 +81,7 @@ const RecommendedPage = () => {
   };
 
   const handleAddToLibrary = (bookId) => {
-    dispatch(addBookAndCloseModal(bookId));
+    dispatch(addBookToLibraryAsync(bookId));
   };
 
   // Check if modal should be open
@@ -96,6 +107,7 @@ const RecommendedPage = () => {
           book={selectedBook}
           onClose={handleCloseModal}
           onAddToLibrary={() => handleAddToLibrary(selectedBook._id)}
+          addBookError={addBookError} // Pass the error to the modal
         />
       )}
     </div>

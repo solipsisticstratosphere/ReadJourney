@@ -10,7 +10,8 @@ export const selectRecommendedTotalPages = (state) =>
   state.books.recommended.totalPages;
 export const selectRecommendedPerPage = (state) =>
   state.books.recommended.perPage;
-
+export const selectLibraryAddBookError = (state) =>
+  state.books.library.addBookError;
 // Селекторы для ограниченных рекомендаций
 export const selectLimitedRecommendedBooks = (state) =>
   state.books.limitedRecommended.items;

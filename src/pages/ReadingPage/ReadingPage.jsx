@@ -43,18 +43,32 @@ const ReadingPage = () => {
   }, [bookId, dispatch]);
 
   // Update local state when book data changes
-  useEffect(() => {
-    if (book) {
-      // Используем последнюю страницу из прогресса, если она есть
-      const lastProgressPage =
-        book.progress && book.progress.length > 0
-          ? book.progress[book.progress.length - 1].finishPage
-          : book.currentPage;
-
-      setCurrentPage(lastProgressPage || 1);
-      setTotalPages(book.totalPages || 0);
-    }
-  }, [book]);
+  const externalFormControl = {
+    initialPage:
+      book?.currentPage ||
+      (book?.progress?.length > 0
+        ? book.progress[book.progress.length - 1].finishPage
+        : 1),
+    totalPages: book?.totalPages || 1000,
+    isReadingActive,
+    onSubmit: async (data) => {
+      if (isReadingActive) {
+        await dispatch(
+          stopReadingSessionAsync({
+            bookId,
+            currentPage: data.currentPage,
+          })
+        );
+      } else {
+        await dispatch(
+          startReadingSessionAsync({
+            bookId,
+            startPage: data.currentPage,
+          })
+        );
+      }
+    },
+  };
 
   const handleBackToLibrary = () => {
     navigate("/library");
@@ -125,17 +139,22 @@ const ReadingPage = () => {
   return (
     <div className={styles.readingPageContainer}>
       <div className={styles.mainContent}>
-        <Dashboard page="reading" bookId={bookId} />
+        <Dashboard
+          page="reading"
+          bookId={bookId}
+          externalFormControl={externalFormControl}
+        />
 
         <div className={styles.bookDisplaySide}>
           <h2 className={styles.sectionTitle}>My reading</h2>
 
           <div className={styles.bookContainer}>
-            {book.imageUrl && (
-              <div className={styles.bookCover}>
-                <img src={book.imageUrl} alt={`Cover for ${book.title}`} />
-              </div>
-            )}
+            <div className={styles.bookCover}>
+              <img
+                src={book.imageUrl || "/src/assets/images/book-placeholder.jpg"}
+                alt={`Cover for ${book.title}`}
+              />
+            </div>
 
             <h3 className={styles.bookTitle}>{book.title}</h3>
             <p className={styles.authorName}>{book.author}</p>

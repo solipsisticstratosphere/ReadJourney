@@ -1,4 +1,5 @@
 .bookCard {
+  position: relative;
   display: flex;
   flex-direction: column;
 }
@@ -63,4 +64,34 @@
   line-height: 120%;
 }
 @media (max-width: 375px) {
+}
+.deleteButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(232, 80, 80, 0.1);
+  border-width: 0;
+  border-radius: 100%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  z-index: 10;
+}
+.bookInfoContainer {
+  display: flex;
+  flex-direction: row;
+}
+.deleteButton:hover {
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.deleteSvg {
+  fill: transparent;
+  color: #e85050;
+  width: 30px;
+  height: 30px;
 }

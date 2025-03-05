@@ -27,6 +27,7 @@ const initialState = {
     items: [],
     isLoading: false,
     error: null,
+    addBookError: null,
   },
   library: {
     items: [],
@@ -65,6 +66,9 @@ const booksSlice = createSlice({
     },
     updatePerPage: (state, action) => {
       state.recommended.perPage = action.payload;
+    },
+    clearAddBookError: (state) => {
+      state.library.addBookError = null;
     },
   },
   extraReducers: (builder) => {
@@ -108,27 +112,17 @@ const booksSlice = createSlice({
       .addCase(addBookToLibraryAsync.pending, (state) => {
         state.library.isLoading = true;
         state.library.error = null;
+        state.library.addBookError = null;
       })
       .addCase(addBookToLibraryAsync.fulfilled, (state, action) => {
         state.library.isLoading = false;
-        // Проверяем, есть ли уже такая книга в библиотеке
-        const existingBookIndex = state.library.items.findIndex(
-          (book) => book._id === action.payload._id
-        );
-
-        if (existingBookIndex !== -1) {
-          // Обновляем существующую книгу
-          state.library.items[existingBookIndex] = action.payload;
-        } else {
-          // Добавляем новую книгу
-          state.library.items = [...state.library.items, action.payload];
-        }
+        state.library.items = [...state.library.items, action.payload];
+        state.library.addBookError = null;
       })
       .addCase(addBookToLibraryAsync.rejected, (state, action) => {
         state.library.isLoading = false;
-        state.library.error =
-          action.payload ||
-          "Произошла ошибка при добавлении книги в библиотеку";
+        state.library.addBookError = action.payload || "Failed to add book";
+        state.library.error = action.payload || "Failed to add book";
       })
       .addCase(fetchUserLibraryAsync.pending, (state) => {
         state.library.isLoading = true;
@@ -270,6 +264,7 @@ export const {
   setSelectedBook,
   clearSelectedBook,
   updatePerPage,
+  clearAddBookError,
 } = booksSlice.actions;
 
 export default booksSlice.reducer;

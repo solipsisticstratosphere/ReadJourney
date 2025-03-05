@@ -12,7 +12,8 @@ import Layout from "../Layout/Layout";
 import RecommendedPage from "../../pages/RecommendPage/RecommendPage";
 import MyLibraryPage from "../../pages/MyLibraryPage/MyLibraryPage";
 import ReadingPage from "../../pages/ReadingPage/ReadingPage";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function App() {
   const dispatch = useDispatch();
   const isRefreshing = useSelector(selectIsRefreshing);
@@ -27,6 +28,17 @@ function App() {
     <div>Loading...</div>
   ) : (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <Routes>
         <Route index element={<Navigate to="/register" />} />
         <Route path="/register" element={<RegisterPage />} />

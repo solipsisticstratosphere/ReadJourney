@@ -601,9 +601,10 @@
   height: 25px;
 }
 .deleteIcon {
+  fill: transparent;
   width: 26px;
   height: 26px;
-  stroke: #686868;
+  color: #686868;
   border-radius: 4px;
 }
 
