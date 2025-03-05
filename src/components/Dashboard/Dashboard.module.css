@@ -489,7 +489,7 @@
 .toggleButton svg {
   width: 20px;
   height: 20px;
-  fill: #9ca3af; /* Inactive state color - a soft gray */
+  color: #686868; /* Inactive state color - a soft gray */
   transition: fill 0.3s ease;
 }
 
@@ -513,13 +513,15 @@
   gap: 8px; /* Adds some space between buttons */
 }
 .diaryContent {
+  background-color: var(--secondary-color-2);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  border-radius: 12px;
+  position: relative;
 }
 
 .diaryEntry {
-  padding: 20px;
+  padding: 20px 20px 0px 20px;
   background-color: var(--secondary-color-2);
   border-radius: 12px;
 }
@@ -537,11 +539,17 @@
   font-size: 12px;
   margin-bottom: 8px;
 }
-
+.entryDateText {
+  gap: 10px;
+  align-items: center;
+  display: flex;
+}
 .pageCount {
   color: rgba(255, 255, 255, 0.5);
 }
 .detailsRow {
+  margin-left: 30px;
+  margin-bottom: 20px;
   display: flex;
   flex-direction: row;
 }
@@ -561,6 +569,7 @@
   line-height: 100%;
 }
 .imgAndButton {
+  gap: 8px;
   margin-left: auto;
   display: flex;
 }
@@ -570,6 +579,8 @@
 }
 
 .readingSpeed {
+  width: 65px;
+  flex-direction: column;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -577,42 +588,56 @@
   font-size: 12px;
 }
 
-.speedTrend {
-  width: 12px;
-  height: 12px;
-  background: #00ff84;
-  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-  transform: rotate(180deg);
-}
-
 .deleteButton {
+  width: 14px;
+  height: 14px;
   background: transparent;
   border: none;
   cursor: pointer;
   padding: 0;
 }
-
+.readingSpeedSvg {
+  width: 60px;
+  height: 25px;
+}
 .deleteIcon {
-  width: 16px;
-  height: 16px;
-  background: rgba(255, 255, 255, 0.1);
+  width: 26px;
+  height: 26px;
+  stroke: #686868;
   border-radius: 4px;
 }
 
-.latestDateHeader {
+.latestentryDate {
   /* Special styling for the header of the latest date */
   font-weight: bold;
-  color: ;
+  color: var(--primary-text-color);
 }
-
+.lastEntry {
+  color: red; /* Динамически меняем цвет текста */
+}
 .latestDateDetails {
   /* Optional: special styling for details of the latest date */
   background-color: ;
 }
 .entryDate {
+  position: relative;
+  color: var(--primary-color-grey);
+  margin-bottom: 30px;
   font-weight: 700;
   font-size: 16px;
   line-height: 112%;
+}
+.headeRow {
+  position: relative;
+}
+.diaryContent::before {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 99%; /* Линия растягивается */
+  background-color: var(--secondary-color-3);
+  left: 32px; /* Подгоняем под квадратик */
+  top: 1px; /* Удлиняем линию наверх */
 }
 
 @keyframes slideIn {

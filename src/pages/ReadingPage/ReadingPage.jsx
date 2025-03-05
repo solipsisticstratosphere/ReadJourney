@@ -4,11 +4,14 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   loadBookForReadingAsync,
   updateReadingProgressAsync,
+  startReadingSessionAsync,
+  stopReadingSessionAsync,
 } from "../../redux/books/operations";
 import {
   selectCurrentBook,
   selectIsReadingLoading,
   selectReadingError,
+  selectIsReadingActive,
 } from "../../redux/books/selectors";
 
 import styles from "./ReadingPage.module.css";
@@ -23,10 +26,10 @@ const ReadingPage = () => {
   const book = useSelector(selectCurrentBook);
   const isLoading = useSelector(selectIsReadingLoading);
   const error = useSelector(selectReadingError);
+  const isReadingActive = useSelector(selectIsReadingActive);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [isReading, setIsReading] = useState(false);
 
   // Use a ref to prevent duplicate API calls
   const hasLoadedRef = useRef(false);
@@ -34,17 +37,21 @@ const ReadingPage = () => {
   useEffect(() => {
     // Load book data only once when component mounts or bookId changes
     if (bookId && !hasLoadedRef.current) {
-      console.log("Loading book with ID:", bookId);
       dispatch(loadBookForReadingAsync(bookId));
       hasLoadedRef.current = true;
     }
   }, [bookId, dispatch]);
 
-  // Update local state when book data changes, without triggering API calls
+  // Update local state when book data changes
   useEffect(() => {
     if (book) {
-      console.log("Updating local state from book data");
-      setCurrentPage(book.currentPage || 1);
+      // Используем последнюю страницу из прогресса, если она есть
+      const lastProgressPage =
+        book.progress && book.progress.length > 0
+          ? book.progress[book.progress.length - 1].finishPage
+          : book.currentPage;
+
+      setCurrentPage(lastProgressPage || 1);
       setTotalPages(book.totalPages || 0);
     }
   }, [book]);
@@ -55,19 +62,26 @@ const ReadingPage = () => {
 
   // Function to toggle reading state
   const toggleReading = () => {
-    setIsReading(!isReading);
-    // Save progress when stopping
-    if (isReading) {
-      saveReadingProgress();
+    if (!isReadingActive) {
+      // Start reading session
+      dispatch(
+        startReadingSessionAsync({
+          bookId,
+          startPage: currentPage,
+        })
+      );
+    } else {
+      // Stop reading session
+      dispatch(
+        stopReadingSessionAsync({
+          bookId,
+          currentPage,
+        })
+      );
     }
   };
 
-  // Function to save reading progress
-  const saveReadingProgress = () => {
-    dispatch(updateReadingProgressAsync({ bookId, currentPage }));
-  };
-
-  // Function to update stop page
+  // Function to update current page
   const handleStopPageChange = (e) => {
     const page = parseInt(e.target.value, 10);
     if (!isNaN(page) && page >= 0 && page <= totalPages) {
@@ -108,19 +122,11 @@ const ReadingPage = () => {
     );
   }
 
-  const readingSpeed = isReading ? book.pagesPerHour || 0 : 0;
-  const progressPercentage = Math.round(
-    (currentPage / (totalPages || 1)) * 100
-  );
-
   return (
     <div className={styles.readingPageContainer}>
       <div className={styles.mainContent}>
-        {/* Left side - Dashboard */}
-
         <Dashboard page="reading" bookId={bookId} />
 
-        {/* Right side - Book display */}
         <div className={styles.bookDisplaySide}>
           <h2 className={styles.sectionTitle}>My reading</h2>
 
@@ -138,10 +144,47 @@ const ReadingPage = () => {
               <button
                 onClick={toggleReading}
                 className={`${styles.readingButton} ${
-                  isReading ? styles.stopButton : styles.startButton
+                  isReadingActive ? styles.stopButton : styles.startButton
                 }`}
               >
-                {isReading ? "■" : "▶"}
+                <svg
+                  className={styles.icon}
+                  width="50"
+                  height="50"
+                  viewBox="0 0 50 50"
+                  fill="none"
+                >
+                  {isReadingActive ? (
+                    <>
+                      <circle
+                        cx="25"
+                        cy="25"
+                        r="24"
+                        stroke="#F9F9F9"
+                        strokeWidth="2"
+                      />
+                      <rect
+                        width="20"
+                        height="20"
+                        x="15"
+                        y="15"
+                        fill="#E90516"
+                        rx="3"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <circle cx="25" cy="25" r="20" fill="#E90516" />
+                      <circle
+                        cx="25"
+                        cy="25"
+                        r="24"
+                        stroke="#F9F9F9"
+                        strokeWidth="2"
+                      />
+                    </>
+                  )}
+                </svg>
               </button>
             </div>
           </div>

@@ -771,8 +771,33 @@ const Dashboard = ({ page, onFilterSubmit, filters, bookId }) => {
                   {processedEntriesWithDateFlag.map((dateEntry, index) => (
                     <div key={index} className={styles.diaryEntry}>
                       <div className={styles.headerRow}>
-                        <div className={styles.entryDate}>
-                          {dateEntry.date}
+                        <div
+                          className={styles.entryDate}
+                          style={{
+                            color:
+                              index === processedEntriesWithDateFlag.length - 1
+                                ? ""
+                                : "var(--primary-text-color)",
+                          }}
+                        >
+                          <div className={styles.entryDateText}>
+                            <svg
+                              className={styles.deleteIcon}
+                              width="20"
+                              height="20"
+                              style={{
+                                fill:
+                                  index ===
+                                  processedEntriesWithDateFlag.length - 1
+                                    ? "red"
+                                    : "white",
+                              }}
+                            >
+                              <use href="/sprite.svg#square" />
+                            </svg>
+
+                            {dateEntry.date}
+                          </div>
                           <div className={styles.pageCount}>
                             {dateEntry.totalDatePages} pages
                           </div>
@@ -795,13 +820,24 @@ const Dashboard = ({ page, onFilterSubmit, filters, bookId }) => {
                           </div>
                           <div className={styles.imgAndButton}>
                             <div className={styles.readingSpeed}>
-                              {entry.pagesPerHour} pages/hr
+                              <svg className={styles.readingSpeedSvg}>
+                                <use href="/sprite.svg#trend" />
+                              </svg>
+                              {entry.pagesPerHour} pages per hour
                             </div>
                             <button
                               className={styles.deleteButton}
                               onClick={() => handleDeleteSession(entry._id)}
                             >
-                              <div className={styles.deleteIcon}></div>
+                              <div>
+                                <svg
+                                  className={styles.deleteIcon}
+                                  width="20"
+                                  height="20"
+                                >
+                                  <use href="/sprite.svg#trash-bin" />
+                                </svg>
+                              </div>
                             </button>
                           </div>
                         </div>
