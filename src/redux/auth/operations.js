@@ -65,34 +65,56 @@ export const refreshUser = createAsyncThunk(REFRESH, async (_, thunkAPI) => {
   const persistedToken = state.auth.token;
   const persistedRefreshToken = state.auth.refreshToken;
 
-  if (!persistedToken) {
-    return thunkAPI.rejectWithValue("No valid token");
+  if (!persistedToken && !persistedRefreshToken) {
+    return thunkAPI.rejectWithValue("No valid tokens");
   }
 
   try {
-    setAuthHeader(persistedToken);
-    const response = await axios.get("/users/current");
-    return response.data;
-  } catch (error) {
-    if (error.response?.status === 401 && persistedRefreshToken) {
+    // Если есть основной токен, попробуем его использовать
+    if (persistedToken) {
+      setAuthHeader(persistedToken);
       try {
-        const refreshResponse = await axios.post("/users/current/refresh", {
+        const response = await axios.get("/users/current");
+        return response.data;
+      } catch (error) {
+        // Если основной токен не работает, но есть refresh token
+        if (error.response?.status === 401 && persistedRefreshToken) {
+          // Продолжаем с refresh token
+          console.log("Using refresh token to get new access token");
+        } else {
+          throw error; // Если ошибка другая или нет refresh token, пробрасываем её дальше
+        }
+      }
+    }
+
+    // Попытка обновить токены с помощью refresh token
+    if (persistedRefreshToken) {
+      try {
+        const refreshResponse = await axios.post("/users/refresh", {
           refreshToken: persistedRefreshToken,
         });
 
-        setAuthHeader(refreshResponse.data.token);
+        // Сохраняем новые токены
+        const newToken = refreshResponse.data.token;
+        const newRefreshToken = refreshResponse.data.refreshToken;
+
+        setAuthHeader(newToken);
+
+        // Получаем данные пользователя с новым токеном
         const userResponse = await axios.get("/users/current");
 
         return {
           ...userResponse.data,
-          token: refreshResponse.data.token,
-          refreshToken: refreshResponse.data.refreshToken,
+          token: newToken,
+          refreshToken: newRefreshToken,
         };
       } catch (refreshError) {
+        console.error("Token refresh failed:", refreshError);
         return thunkAPI.rejectWithValue("Token refresh failed");
       }
     }
-
+  } catch (error) {
+    console.error("Failed to refresh user:", error);
     return thunkAPI.rejectWithValue(
       error.response?.data?.message || "Failed to refresh user"
     );

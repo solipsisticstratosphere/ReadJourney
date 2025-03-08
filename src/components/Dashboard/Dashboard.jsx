@@ -48,8 +48,7 @@ const Dashboard = ({
 
   const totalPagesRead = currentBook?.progress
     ? currentBook.progress.reduce(
-        (total, session) =>
-          total + (session.finishPage - session.startPage + 1),
+        (total, session) => total + (session.finishPage - session.startPage),
         0
       )
     : 0;
@@ -413,7 +412,6 @@ const Dashboard = ({
                       type="text"
                       id="bookTitle"
                       className={styles.input}
-                      placeholder="Enter text"
                       {...register("title")}
                     />
                     {(dirtyFields.title || isSubmitted) && (
@@ -442,7 +440,6 @@ const Dashboard = ({
                       type="text"
                       id="author"
                       className={styles.input}
-                      placeholder="Enter text"
                       {...register("author")}
                     />
                     {(dirtyFields.author || isSubmitted) && (
@@ -530,7 +527,6 @@ const Dashboard = ({
                   <input
                     type="text"
                     className={styles.input}
-                    placeholder="Book title"
                     {...register("title")}
                   />
                   {(dirtyFields.title || isSubmitted) && (
@@ -558,7 +554,6 @@ const Dashboard = ({
                   <input
                     type="text"
                     className={styles.input}
-                    placeholder="Author name"
                     {...register("author")}
                   />
                   {(dirtyFields.author || isSubmitted) && (
@@ -647,64 +642,66 @@ const Dashboard = ({
       {page === "reading" && currentBook && (
         <div className={styles.readingDashboard}>
           <div className={styles.filtersFormReadingView}>
-            <span className={styles.sectionTitle}>Start page:</span>
-            <div className={styles.inputGroup}>
-              <div className={styles.inputField}>
-                <div className={getInputContainerClass("currentPage")}>
-                  <input
-                    type="text"
-                    className={styles.inputReading}
-                    min="1"
-                    max={
-                      externalFormControl?.totalPages ||
-                      currentBook?.totalPages ||
-                      1000
-                    }
-                    placeholder="Page number"
-                    {...register("currentPage")}
-                    onKeyPress={(e) => {
-                      // Allow only digits and control keys
-                      if (
-                        !/[0-9]/.test(e.key) &&
-                        e.key !== "Backspace" &&
-                        e.key !== "Delete" &&
-                        e.key !== "ArrowLeft" &&
-                        e.key !== "ArrowRight"
-                      ) {
-                        e.preventDefault();
+            <div className={styles.formReading}>
+              <span className={styles.sectionTitle}>Start page:</span>
+              <div className={styles.inputGroup}>
+                <div className={styles.inputField}>
+                  <div className={getInputContainerClass("currentPage")}>
+                    <input
+                      type="text"
+                      className={styles.inputReading}
+                      min="1"
+                      max={
+                        externalFormControl?.totalPages ||
+                        currentBook?.totalPages ||
+                        1000
                       }
-                    }}
-                  />
-                  {(dirtyFields.currentPage || isSubmitted) && (
-                    <div className={styles.statusIcon}>
-                      {errors.currentPage ? (
-                        <svg width="20" height="20">
-                          <use href="/sprite.svg#error-icon" />
-                        </svg>
-                      ) : (
-                        <svg width="20" height="20">
-                          <use href="/sprite.svg#success-icon" />
-                        </svg>
-                      )}
-                    </div>
-                  )}
+                      placeholder="Page number"
+                      {...register("currentPage")}
+                      onKeyPress={(e) => {
+                        // Allow only digits and control keys
+                        if (
+                          !/[0-9]/.test(e.key) &&
+                          e.key !== "Backspace" &&
+                          e.key !== "Delete" &&
+                          e.key !== "ArrowLeft" &&
+                          e.key !== "ArrowRight"
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
+                    />
+                    {(dirtyFields.currentPage || isSubmitted) && (
+                      <div className={styles.statusIcon}>
+                        {errors.currentPage ? (
+                          <svg width="20" height="20">
+                            <use href="/sprite.svg#error-icon" />
+                          </svg>
+                        ) : (
+                          <svg width="20" height="20">
+                            <use href="/sprite.svg#success-icon" />
+                          </svg>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <button
-            type="submit"
-            className={`${styles.readingButton} ${
-              isReadingActive ? styles.stopButton : styles.startButton
-            }`}
-            onClick={processSubmit(onSubmit, onError)}
-          >
-            {isReadingActive ? "To stop" : "To start"}
-          </button>
+            <button
+              type="submit"
+              className={`${styles.readingButton} ${
+                isReadingActive ? styles.stopButton : styles.startButton
+              }`}
+              onClick={processSubmit(onSubmit, onError)}
+            >
+              {isReadingActive ? "To stop" : "To start"}
+            </button>
+          </div>
           {hasProgress ? (
             // Если есть прогресс, показываем режимы Statistics и Diary
-            <>
+            <div className={styles.progressSwitcher}>
               <div className={styles.progressSection}>
                 <div className={styles.viewToggle}>
                   <h4 className={styles.progressTitle}>
@@ -812,7 +809,6 @@ const Dashboard = ({
                                 ? "var(--primary-text-color)"
                                 : "var(--primary-text-color)",
                           }}
-                          ё
                         >
                           <div className={styles.entryDateText}>
                             <svg
@@ -880,10 +876,10 @@ const Dashboard = ({
                   ))}
                 </div>
               )}
-            </>
+            </div>
           ) : (
             // Если прогресса нет, показываем базовую информацию
-            <>
+            <div className={styles.progressContainer}>
               <div className={styles.progressSection}>
                 <h4 className={styles.progressTitle}>Progress</h4>
                 <p className={styles.progressText}>
@@ -897,7 +893,7 @@ const Dashboard = ({
                   <img src={star} className={styles.starImage} alt="Books" />
                 </div>
               </div>
-            </>
+            </div>
           )}
           {/* Звездочка отображается в любом случае */}
         </div>

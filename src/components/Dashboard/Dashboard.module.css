@@ -607,6 +607,10 @@
   color: #686868;
   border-radius: 4px;
 }
+.readingDashboard {
+  display: flex;
+  flex-direction: column;
+}
 
 .latestentryDate {
   /* Special styling for the header of the latest date */
@@ -652,7 +656,33 @@
   }
 }
 @media (max-width: 768px) {
+  .formReading {
+    display: flex;
+    flex-direction: column;
+  }
+  .sectionTitle {
+    align-self: flex-start;
+    margin-bottom: 8px;
+  }
+  .progressSwitcher {
+    width: 100%;
+  }
+  .diaryContent {
+    width: 100%;
+  }
+  .progressTextNew {
+    display: none;
+  }
+  .readingDashboard {
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+  }
+  .progressText {
+    font-size: 13px;
+  }
   .dashboard {
+    justify-content: space-around;
     flex-direction: row;
     width: 100%;
   }

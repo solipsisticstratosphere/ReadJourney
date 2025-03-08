@@ -110,12 +110,18 @@
   .title {
     font-size: 24px;
   }
+  .libraryGrid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  }
 }
 @media (max-width: 375px) {
   .booksGrid {
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
 
     gap: 21px;
+  }
+  .libraryGrid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
   }
   .title {
     font-weight: 700;

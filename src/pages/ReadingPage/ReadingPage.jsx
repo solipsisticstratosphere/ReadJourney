@@ -160,51 +160,45 @@ const ReadingPage = () => {
             <p className={styles.authorName}>{book.author}</p>
 
             <div className={styles.readingControls}>
-              <button
-                onClick={toggleReading}
-                className={`${styles.readingButton} ${
-                  isReadingActive ? styles.stopButton : styles.startButton
-                }`}
+              {/* Non-clickable SVG that only displays reading state */}
+              <svg
+                className={styles.icon}
+                width="50"
+                height="50"
+                viewBox="0 0 50 50"
+                fill="none"
               >
-                <svg
-                  className={styles.icon}
-                  width="50"
-                  height="50"
-                  viewBox="0 0 50 50"
-                  fill="none"
-                >
-                  {isReadingActive ? (
-                    <>
-                      <circle
-                        cx="25"
-                        cy="25"
-                        r="24"
-                        stroke="#F9F9F9"
-                        strokeWidth="2"
-                      />
-                      <rect
-                        width="20"
-                        height="20"
-                        x="15"
-                        y="15"
-                        fill="#E90516"
-                        rx="3"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <circle cx="25" cy="25" r="20" fill="#E90516" />
-                      <circle
-                        cx="25"
-                        cy="25"
-                        r="24"
-                        stroke="#F9F9F9"
-                        strokeWidth="2"
-                      />
-                    </>
-                  )}
-                </svg>
-              </button>
+                {isReadingActive ? (
+                  <>
+                    <circle
+                      cx="25"
+                      cy="25"
+                      r="24"
+                      stroke="#F9F9F9"
+                      strokeWidth="2"
+                    />
+                    <rect
+                      width="20"
+                      height="20"
+                      x="15"
+                      y="15"
+                      fill="#E90516"
+                      rx="3"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <circle cx="25" cy="25" r="20" fill="#E90516" />
+                    <circle
+                      cx="25"
+                      cy="25"
+                      r="24"
+                      stroke="#F9F9F9"
+                      strokeWidth="2"
+                    />
+                  </>
+                )}
+              </svg>
             </div>
           </div>
         </div>
