@@ -36,9 +36,7 @@ const SignInForm = () => {
       if (login.fulfilled.match(resultAction)) {
         navigate("/recommended");
       }
-    } catch (error) {
-      // Error is handled by the redux slice
-    }
+    } catch (error) {}
   };
 
   return (

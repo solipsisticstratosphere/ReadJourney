@@ -55,7 +55,6 @@
   width: 100%;
 }
 
-/* Field container with label and input */
 .inputField {
   display: flex;
   align-items: center;
@@ -63,11 +62,11 @@
   background-color: var(--secondary-color-2);
   border: none;
   border-radius: 12px;
-  overflow: hidden; /* Prevent children from overflowing */
+  overflow: hidden;
 }
 .inputField input[type="text"][name="pages"] {
-  max-width: 100%; /* Maximum width */
-  min-width: 0; /* Allow shrinking if needed */
+  max-width: 100%;
+  min-width: 0;
 }
 .inputLabel {
   font-size: 14px;
@@ -82,10 +81,10 @@
   color: var(--primary-text-color);
   font-size: 1rem;
   outline: none;
-  width: 100%; /* Ensure input respects container width */
-  box-sizing: border-box; /* Include padding in width calculation */
-  overflow: hidden; /* Prevent overflow */
-  text-overflow: ellipsis; /* Add ellipsis for text that might overflow */
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .input::placeholder {
   color: var(--primary-text-color);
@@ -103,10 +102,10 @@
   color: var(--primary-text-color);
   font-size: 1rem;
   outline: none;
-  width: 100%; /* Ensure input respects container width */
-  box-sizing: border-box; /* Include padding in width calculation */
-  overflow: hidden; /* Prevent overflow */
-  text-overflow: ellipsis; /* Add ellipsis for text that might overflow */
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .applyButton {
   width: 122px;
@@ -223,10 +222,10 @@
   background-color: var(--secondary-color-2);
   border-radius: 12px;
   padding: 20px 15px;
-  display: flex; /* Явно задаём flex, хотя flex-direction: row уже подразумевает это */
+  display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px; /* Добавляем небольшой отступ между иконкой и текстом */
+  gap: 10px;
 }
 
 .quoteImage {
@@ -317,7 +316,7 @@
   align-items: center;
   width: 100%;
   background-color: var(--secondary-color-2);
-  border: 1px solid #ff4d4f; /* Red border for error */
+  border: 1px solid #ff4d4f;
   border-radius: 12px;
 }
 
@@ -327,11 +326,10 @@
   align-items: center;
   width: 100%;
   background-color: var(--secondary-color-2);
-  border: 1px solid #52c41a; /* Green border for success */
+  border: 1px solid #52c41a;
   border-radius: 12px;
 }
 
-/* Status indicators */
 .statusIcon {
   position: absolute;
   right: 10px;
@@ -340,12 +338,10 @@
   justify-content: center;
 }
 
-/* For when eye icon and status icon are both present */
 .showPasswordBtnWithStatus {
   right: 40px;
 }
 
-/* Status messages */
 .errorMessage {
   color: #ff4d4f;
   font-size: 0.8rem;
@@ -494,28 +490,28 @@
 .toggleButton svg {
   width: 20px;
   height: 20px;
-  color: #686868; /* Inactive state color - a soft gray */
+  color: #686868;
   transition: fill 0.3s ease;
 }
 
 .toggleButton:hover {
-  background-color: rgba(75, 85, 99, 0.1); /* Slight background on hover */
+  background-color: rgba(75, 85, 99, 0.1);
 }
 
 .toggleButton.active svg {
-  fill: var(--primary-color-blue); /* Blue color for active state */
+  fill: var(--primary-color-blue);
 }
 .viewToggle {
   margin-bottom: 20px;
   display: flex;
-  justify-content: space-between; /* This will push the buttons to the right */
+  justify-content: space-between;
   align-items: baseline;
-  width: 100%; /* Full width of the container */
+  width: 100%;
   height: 40px;
   background-color: transparent;
   border: none;
   transition: background-color 0.3s ease;
-  gap: 8px; /* Adds some space between buttons */
+  gap: 8px;
 }
 .diaryContent {
   background-color: var(--secondary-color-2);
@@ -618,17 +614,13 @@
 }
 
 .latestentryDate {
-  /* Special styling for the header of the latest date */
   font-weight: bold;
   color: var(--primary-text-color);
 }
 .lastEntry {
-  color: red; /* Динамически меняем цвет текста */
+  color: red;
 }
-.latestDateDetails {
-  /* Optional: special styling for details of the latest date */
-  background-color: ;
-}
+
 .entryDate {
   position: relative;
   color: var(--primary-color-grey);
@@ -644,10 +636,10 @@
   content: "";
   position: absolute;
   width: 2px;
-  height: 99%; /* Линия растягивается */
+  height: 99%;
   background-color: var(--secondary-color-3);
-  left: 32px; /* Подгоняем под квадратик */
-  top: 1px; /* Удлиняем линию наверх */
+  left: 32px;
+  top: 1px;
 }
 .formReading {
   flex-direction: column;

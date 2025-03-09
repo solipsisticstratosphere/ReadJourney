@@ -1,10 +1,9 @@
 import { createAction, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Функция для определения количества книг в зависимости от ширины экрана
 export const getPerPageByScreenWidth = () => {
   if (typeof window === "undefined") {
-    return 10; // Для SSR возвращаем значение по умолчанию
+    return 10;
   }
 
   const width = window.innerWidth;
@@ -21,7 +20,6 @@ export const getPerPageByScreenWidth = () => {
   return perPage;
 };
 
-// API функции
 const fetchRecommendedBooksApi = async (
   page = 1,
   perPage = getPerPageByScreenWidth(),
@@ -30,7 +28,7 @@ const fetchRecommendedBooksApi = async (
   try {
     const params = new URLSearchParams();
     params.append("page", page);
-    params.append("limit", perPage); // Изменено с perPage на limit для бэкенда
+    params.append("limit", perPage);
     if (filters.title) params.append("title", filters.title);
     if (filters.author) params.append("author", filters.author);
 
@@ -43,12 +41,11 @@ const fetchRecommendedBooksApi = async (
   }
 };
 
-// API-функция для ограниченного числа книг (3 книги для секции в библиотеке)
 const fetchLimitedRecommendedBooksApi = async () => {
   try {
     const params = new URLSearchParams();
     params.append("page", 1);
-    params.append("limit", 3); // Фиксированное ограничение в 3 книги
+    params.append("limit", 3);
 
     const response = await axios.get(`/books/recommend?${params.toString()}`);
     return response.data;
@@ -61,10 +58,8 @@ const fetchLimitedRecommendedBooksApi = async () => {
 };
 
 const addBookToLibraryApi = async (bookData, currentLibrary) => {
-  // Determine the book ID
   const bookId = typeof bookData === "object" ? bookData._id : bookData;
 
-  // More comprehensive check for book duplication
   const isBookInLibrary = currentLibrary.some(
     (book) =>
       book._id === bookId ||
@@ -74,14 +69,12 @@ const addBookToLibraryApi = async (bookData, currentLibrary) => {
   );
 
   if (isBookInLibrary) {
-    // Throw a more specific error for UI handling
     const error = new Error("This book is already in your library");
     error.name = "DuplicateBookError";
     throw error;
   }
 
   try {
-    // Existing book addition logic remains the same
     if (typeof bookData === "object" && bookData.title) {
       const response = await axios.post("/books/add", bookData);
       return response.data;
@@ -107,7 +100,6 @@ const fetchUserLibraryApi = async () => {
   }
 };
 
-// Новые API функции для чтения книг
 const loadBookForReadingApi = async (bookId) => {
   try {
     console.log("API call with bookId:", bookId);
@@ -124,7 +116,6 @@ const loadBookForReadingApi = async (bookId) => {
 
 const updateReadingProgressApi = async ({ bookId, currentPage }) => {
   try {
-    // Простое обновление текущей страницы без сессии чтения
     const response = await axios.put(`/books/${bookId}`, {
       currentPage: currentPage,
     });
@@ -185,7 +176,7 @@ export const deleteReadingSession = createAsyncThunk(
 const removeBookFromLibraryApi = async (bookId) => {
   try {
     const response = await axios.delete(`/books/remove/${bookId}`);
-    return bookId; // Возвращаем ID удаленной книги для обновления состояния
+    return bookId;
   } catch (error) {
     throw new Error(
       error.response?.data?.message || "Failed to remove book from library"
@@ -193,7 +184,6 @@ const removeBookFromLibraryApi = async (bookId) => {
   }
 };
 
-// Async thunks
 export const fetchRecommendedBooksAsync = createAsyncThunk(
   "books/fetchRecommended",
   async ({ page, perPage, filters }, { rejectWithValue }) => {
@@ -205,7 +195,6 @@ export const fetchRecommendedBooksAsync = createAsyncThunk(
   }
 );
 
-// Новый thunk для ограниченных рекомендаций (3 книги)
 export const fetchLimitedRecommendedBooksAsync = createAsyncThunk(
   "books/fetchLimitedRecommended",
   async (_, { rejectWithValue }) => {
@@ -225,7 +214,6 @@ export const addBookToLibraryAsync = createAsyncThunk(
 
       return await addBookToLibraryApi(bookData, currentLibrary);
     } catch (error) {
-      // Special handling for duplicate book error
       if (error.name === "DuplicateBookError") {
         return rejectWithValue("This book is already in your library");
       }
@@ -244,7 +232,6 @@ export const fetchUserLibraryAsync = createAsyncThunk(
   }
 );
 
-// Новые thunk для функциональности чтения
 export const loadBookForReadingAsync = createAsyncThunk(
   "books/loadBookForReading",
   async (bookId, { rejectWithValue }) => {
@@ -315,7 +302,6 @@ export const removeBookFromLibraryAsync = createAsyncThunk(
   }
 );
 
-// Обновленная операция загрузки рекомендуемых книг
 export const loadRecommendedBooks = () => (dispatch, getState) => {
   const { books } = getState();
   const { currentPage, perPage } = books.recommended;
@@ -330,25 +316,20 @@ export const loadRecommendedBooks = () => (dispatch, getState) => {
   );
 };
 
-// Новая операция для загрузки ограниченного числа рекомендуемых книг
 export const loadLimitedRecommendedBooks = () => (dispatch) => {
   dispatch(fetchLimitedRecommendedBooksAsync());
 };
 
-// Добавляем обработчик изменения размера окна с дебаунсингом
 export const setupResponsiveListener = () => (dispatch, getState) => {
   let resizeTimer;
 
   const handleResize = () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      // Получаем текущий perPage
       const oldPerPage = getState().books.recommended.perPage;
 
-      // Вычисляем новый perPage на основе текущего размера окна
       const newPerPage = getPerPageByScreenWidth();
 
-      // Если значение изменилось, обновляем его в store и перезагружаем книги
       if (oldPerPage !== newPerPage) {
         dispatch({ type: "books/updatePerPage", payload: newPerPage });
         dispatch(loadRecommendedBooks());
@@ -356,12 +337,10 @@ export const setupResponsiveListener = () => (dispatch, getState) => {
     }, 250);
   };
 
-  // Запускаем при монтировании, чтобы установить начальное значение
   handleResize();
 
   window.addEventListener("resize", handleResize);
 
-  // Возвращаем функцию очистки слушателя при размонтировании компонента
   return () => {
     window.removeEventListener("resize", handleResize);
     clearTimeout(resizeTimer);

@@ -24,7 +24,7 @@
   font-size: 14px;
   line-height: 129%;
 }
-/* Left Side - Dashboard */
+
 .dashboardSide {
   width: 300px;
   background-color: #202020;
@@ -73,9 +73,6 @@
   background-color: #333;
 }
 
-.diarySection {
-}
-
 .diarySection h3 {
   font-size: 16px;
   margin-bottom: 15px;
@@ -86,7 +83,6 @@
   justify-content: space-between;
 }
 
-/* Right Side - Book Display */
 .bookDisplaySide {
   border-radius: 30px;
   background-color: var(--secondary-color-3);
@@ -158,7 +154,6 @@
   background-color: transparent;
 }
 
-/* Progress display styling */
 .progressDisplay {
   display: flex;
   flex-direction: column;
@@ -197,7 +192,6 @@
   color: #666;
 }
 
-/* Loading and Error States */
 .loadingContainer {
   display: flex;
   flex-direction: column;
@@ -255,7 +249,6 @@
   background-color: rgba(79, 46, 232, 0.1);
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .mainContent {
     flex-direction: column;

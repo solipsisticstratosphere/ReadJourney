@@ -228,7 +228,7 @@
     transform: translateX(0);
   }
 }
-/* Media queries for responsive design */
+
 @media (max-width: 768px) {
   .userName {
     display: none;

@@ -185,19 +185,19 @@
   justify-content: center;
 }
 .mobilePreviewImage {
-  width: 70%; /* Изображение занимает всю ширину контейнера */
-  height: auto; /* Сохраняет пропорции изображения */
+  width: 70%;
+  height: auto;
 
-  object-fit: cover; /* Убедитесь, что изображение корректно обрезается и заполняет контейнер */
+  object-fit: cover;
 }
-/* Add these new classes */
+
 .inputContainerError {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
   background-color: var(--secondary-color-2);
-  border: 1px solid #ff4d4f; /* Red border for error */
+  border: 1px solid #ff4d4f;
   border-radius: 12px;
 }
 
@@ -207,11 +207,10 @@
   align-items: center;
   width: 100%;
   background-color: var(--secondary-color-2);
-  border: 1px solid #52c41a; /* Green border for success */
+  border: 1px solid #52c41a;
   border-radius: 12px;
 }
 
-/* Status indicators */
 .statusIcon {
   position: absolute;
   right: 10px;
@@ -220,12 +219,10 @@
   justify-content: center;
 }
 
-/* For when eye icon and status icon are both present */
 .showPasswordBtnWithStatus {
   right: 40px;
 }
 
-/* Status messages */
 .errorMessage {
   color: #ff4d4f;
   font-size: 0.8rem;

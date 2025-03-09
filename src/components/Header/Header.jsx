@@ -32,7 +32,6 @@ const Header = ({ onLogout }) => {
     setMenuOpen(!menuOpen);
   };
 
-  // Prevent body scrolling when menu is open
   useEffect(() => {
     if (menuOpen) {
       document.body.style.overflow = "hidden";
@@ -49,12 +48,10 @@ const Header = ({ onLogout }) => {
       <div className={styles.headerContainer}>
         <Logo />
 
-        {/* Desktop Navigation */}
         <nav className={styles.desktopNav}>
           <UserNav />
         </nav>
 
-        {/* User Information and Logout */}
         <div className={styles.userBar}>
           <div className={styles.userInfo}>
             <div className={styles.userAvatar}>
@@ -68,7 +65,6 @@ const Header = ({ onLogout }) => {
             Log out
           </button>
 
-          {/* Burger SVG Icon for Mobile (non-functional) */}
           <button
             className={styles.burgerButton}
             onClick={toggleMenu}
@@ -81,7 +77,6 @@ const Header = ({ onLogout }) => {
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
       {menuOpen && (
         <div className={styles.menuOverlay}>
           <div ref={menuRef} className={styles.mobileMenu}>
@@ -151,7 +146,6 @@ const Header = ({ onLogout }) => {
   );
 };
 
-// UserNav component (separate for reusability)
 const UserNav = () => {
   return (
     <ul className={styles.navList}>

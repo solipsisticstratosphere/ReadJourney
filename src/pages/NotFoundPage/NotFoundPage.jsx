@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styles from "./NotFoundPage.module.css";
-import bookIcon from "../../assets/images/smallBooks.png"; // You'll need to add this SVG asset
+import bookIcon from "../../assets/images/smallBooks.png";
 
 const NotFoundPage = () => {
   return (

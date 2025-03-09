@@ -73,7 +73,7 @@ const booksSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Обработка обычных рекомендаций
+
       .addCase(fetchRecommendedBooksAsync.pending, (state) => {
         state.recommended.isLoading = true;
         state.recommended.error = null;
@@ -92,14 +92,13 @@ const booksSlice = createSlice({
           "Произошла ошибка при загрузке рекомендованных книг";
       })
 
-      // Обработка ограниченных рекомендаций (3 книги)
       .addCase(fetchLimitedRecommendedBooksAsync.pending, (state) => {
         state.limitedRecommended.isLoading = true;
         state.limitedRecommended.error = null;
       })
       .addCase(fetchLimitedRecommendedBooksAsync.fulfilled, (state, action) => {
         state.limitedRecommended.isLoading = false;
-        state.limitedRecommended.items = action.payload.results.slice(0, 3); // Гарантируем, что будет не больше 3 книг
+        state.limitedRecommended.items = action.payload.results.slice(0, 3);
       })
       .addCase(fetchLimitedRecommendedBooksAsync.rejected, (state, action) => {
         state.limitedRecommended.isLoading = false;
@@ -108,7 +107,6 @@ const booksSlice = createSlice({
           "Произошла ошибка при загрузке ограниченных рекомендаций";
       })
 
-      // Обработка библиотеки и добавления книг
       .addCase(addBookToLibraryAsync.pending, (state) => {
         state.library.isLoading = true;
         state.library.error = null;
@@ -138,14 +136,13 @@ const booksSlice = createSlice({
           action.payload || "Произошла ошибка при загрузке библиотеки";
       })
 
-      // Обработка удаления книги из библиотеки
       .addCase(removeBookFromLibraryAsync.pending, (state) => {
         state.library.isLoading = true;
         state.library.error = null;
       })
       .addCase(removeBookFromLibraryAsync.fulfilled, (state, action) => {
         state.library.isLoading = false;
-        // Удаляем книгу из массива по ID
+
         state.library.items = state.library.items.filter(
           (book) => book._id !== action.payload
         );
@@ -156,7 +153,6 @@ const booksSlice = createSlice({
           action.payload || "Произошла ошибка при удалении книги из библиотеки";
       })
 
-      // Обработка функциональности чтения
       .addCase(loadBookForReadingAsync.pending, (state) => {
         state.reading.isLoading = true;
         state.reading.error = null;
@@ -165,7 +161,6 @@ const booksSlice = createSlice({
         state.reading.isLoading = false;
         state.reading.currentBook = action.payload;
 
-        // Определяем, активна ли сессия чтения по последней записи в прогрессе
         const progressEntries = action.payload.progress || [];
         if (progressEntries.length > 0) {
           const lastEntry = progressEntries[progressEntries.length - 1];
@@ -180,7 +175,6 @@ const booksSlice = createSlice({
           action.payload || "Произошла ошибка при загрузке книги для чтения";
       })
 
-      // Обработка загрузки текущей книги для Dashboard
       .addCase(loadCurrentBookAsync.pending, (state) => {
         state.reading.isLoading = true;
         state.reading.error = null;
@@ -189,7 +183,6 @@ const booksSlice = createSlice({
         state.reading.isLoading = false;
         state.reading.currentBook = action.payload;
 
-        // Определяем, активна ли сессия чтения
         const progressEntries = action.payload.progress || [];
         if (progressEntries.length > 0) {
           const lastEntry = progressEntries[progressEntries.length - 1];
@@ -204,12 +197,8 @@ const booksSlice = createSlice({
           action.payload || "Произошла ошибка при загрузке текущей книги";
       })
 
-      // Обработка обновления прогресса чтения
-      .addCase(updateReadingProgressAsync.pending, (state) => {
-        // Здесь можно не менять isLoading, чтобы не блокировать интерфейс
-      })
+      .addCase(updateReadingProgressAsync.pending, (state) => {})
       .addCase(updateReadingProgressAsync.fulfilled, (state, action) => {
-        // Обновляем информацию о книге
         state.reading.currentBook = action.payload;
       })
       .addCase(updateReadingProgressAsync.rejected, (state, action) => {
@@ -217,10 +206,7 @@ const booksSlice = createSlice({
           action.payload || "Произошла ошибка при обновлении прогресса чтения";
       })
 
-      // Обработка начала сессии чтения
-      .addCase(startReadingSessionAsync.pending, (state) => {
-        // Можно показать индикатор загрузки, если нужно
-      })
+      .addCase(startReadingSessionAsync.pending, (state) => {})
       .addCase(startReadingSessionAsync.fulfilled, (state, action) => {
         state.reading.currentBook = action.payload;
         state.reading.isReadingActive = true;
@@ -230,10 +216,7 @@ const booksSlice = createSlice({
           action.payload || "Произошла ошибка при начале сессии чтения";
       })
 
-      // Обработка завершения сессии чтения
-      .addCase(stopReadingSessionAsync.pending, (state) => {
-        // Можно показать индикатор загрузки, если нужно
-      })
+      .addCase(stopReadingSessionAsync.pending, (state) => {})
       .addCase(stopReadingSessionAsync.fulfilled, (state, action) => {
         state.reading.currentBook = action.payload;
         state.reading.isReadingActive = false;
@@ -243,7 +226,6 @@ const booksSlice = createSlice({
           action.payload || "Произошла ошибка при завершении сессии чтения";
       })
       .addCase(deleteReadingSession.fulfilled, (state, action) => {
-        // Ensure we're updating the current book's progress
         if (state.reading.currentBook && state.reading.currentBook.progress) {
           state.reading.currentBook.progress =
             state.reading.currentBook.progress.filter(

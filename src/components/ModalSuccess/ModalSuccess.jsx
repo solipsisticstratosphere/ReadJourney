@@ -28,7 +28,6 @@ const SuccessModal = ({ showSuccessModal, handleCloseSuccessModal }) => {
     document.addEventListener("keydown", handleEsc);
     document.addEventListener("mousedown", handleClickOutside);
 
-    // Prevent scrolling of the body when modal is open
     document.body.style.overflow = "hidden";
 
     return () => {

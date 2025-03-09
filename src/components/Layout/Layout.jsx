@@ -12,13 +12,12 @@ const Layout = () => {
   const handleLogout = async () => {
     try {
       await dispatch(logout()).unwrap();
-      // Clear local storage and redux store on successful logout
+
       localStorage.clear();
       dispatch(clearUserData());
     } catch (error) {
-      // Show notification if backend returns an error
       toast.error("Logout failed. Please try again.");
-      // Still clear data on the client side
+
       localStorage.clear();
       dispatch(clearUserData());
     }

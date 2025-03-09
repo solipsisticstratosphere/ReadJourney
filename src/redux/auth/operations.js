@@ -1,10 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Set axios defaults
 axios.defaults.baseURL = "https://readjourney.b.goit.study/api";
 
-// Helper functions
 const setAuthHeader = (token) => {
   axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 };
@@ -13,13 +11,11 @@ const clearAuthHeader = () => {
   axios.defaults.headers.common.Authorization = "";
 };
 
-// Define thunk action types as constants to avoid circular imports
 const REGISTER = "auth/register";
 const LOGIN = "auth/login";
 const LOGOUT = "auth/logout";
 const REFRESH = "auth/refresh";
 
-// Create async thunks with explicit type constants
 export const register = createAsyncThunk(
   REGISTER,
   async (credentials, thunkAPI) => {
@@ -70,14 +66,12 @@ export const refreshUser = createAsyncThunk(REFRESH, async (_, thunkAPI) => {
   }
 
   try {
-    // Try using the main token first
     if (persistedToken) {
       setAuthHeader(persistedToken);
       try {
         const response = await axios.get("/users/current");
         return response.data;
       } catch (error) {
-        // If main token doesn't work but we have a refresh token
         if (error.response?.status === 401 && persistedRefreshToken) {
           console.log("Using refresh token to get new access token");
         } else {
@@ -86,23 +80,19 @@ export const refreshUser = createAsyncThunk(REFRESH, async (_, thunkAPI) => {
       }
     }
 
-    // Try refreshing tokens using the refresh endpoint
     if (persistedRefreshToken) {
       try {
-        // Use the correct endpoint for refreshing tokens (GET instead of POST)
         const refreshResponse = await axios.get("/users/current/refresh", {
           headers: {
             Authorization: `Bearer ${persistedRefreshToken}`,
           },
         });
 
-        // Save new tokens
         const newToken = refreshResponse.data.token;
         const newRefreshToken = refreshResponse.data.refreshToken;
 
         setAuthHeader(newToken);
 
-        // Get user data with new token
         const userResponse = await axios.get("/users/current");
 
         return {

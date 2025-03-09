@@ -22,7 +22,6 @@ const ReadingPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Get book data from Redux
   const book = useSelector(selectCurrentBook);
   const isLoading = useSelector(selectIsReadingLoading);
   const error = useSelector(selectReadingError);
@@ -31,18 +30,15 @@ const ReadingPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
-  // Use a ref to prevent duplicate API calls
   const hasLoadedRef = useRef(false);
 
   useEffect(() => {
-    // Load book data only once when component mounts or bookId changes
     if (bookId && !hasLoadedRef.current) {
       dispatch(loadBookForReadingAsync(bookId));
       hasLoadedRef.current = true;
     }
   }, [bookId, dispatch]);
 
-  // Update local state when book data changes
   const externalFormControl = {
     initialPage:
       book?.currentPage ||
@@ -74,10 +70,8 @@ const ReadingPage = () => {
     navigate("/library");
   };
 
-  // Function to toggle reading state
   const toggleReading = () => {
     if (!isReadingActive) {
-      // Start reading session
       dispatch(
         startReadingSessionAsync({
           bookId,
@@ -85,7 +79,6 @@ const ReadingPage = () => {
         })
       );
     } else {
-      // Stop reading session
       dispatch(
         stopReadingSessionAsync({
           bookId,
@@ -95,7 +88,6 @@ const ReadingPage = () => {
     }
   };
 
-  // Function to update current page
   const handleStopPageChange = (e) => {
     const page = parseInt(e.target.value, 10);
     if (!isNaN(page) && page >= 0 && page <= totalPages) {
@@ -170,7 +162,6 @@ const ReadingPage = () => {
             <p className={styles.authorName}>{book.author}</p>
 
             <div className={styles.readingControls}>
-              {/* Non-clickable SVG that only displays reading state */}
               <svg
                 className={styles.icon}
                 width="50"

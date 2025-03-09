@@ -2,7 +2,7 @@ import styles from "./BookCard.module.css";
 
 const BookCard = ({ book, onClick, isLibraryView, onRemove }) => {
   const handleRemoveClick = (e) => {
-    e.stopPropagation(); // Prevent triggering book click
+    e.stopPropagation();
     onRemove(book.id || book._id);
   };
 

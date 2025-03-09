@@ -2,16 +2,15 @@ import styles from "./RecommendedBooks.module.css";
 import BookCard from "../BookCard/BookCard";
 
 const RecommendedBooks = ({
-  books = [], // Дефолтное значение - пустой массив
+  books = [],
   currentPage = 1,
   totalPages = 1,
-  onPageChange = () => {}, // Пустая функция по умолчанию
-  onBookClick = () => {}, // Пустая функция по умолчанию
+  onPageChange = () => {},
+  onBookClick = () => {},
   isLoading = false,
   showLimited = false,
-  isLibraryView = false, // New prop to specifically target library view
+  isLibraryView = false,
 }) => {
-  // Check if books array is empty
   const noBooksFound = books.length === 0 && !isLoading;
 
   return (

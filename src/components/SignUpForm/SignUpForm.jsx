@@ -20,7 +20,7 @@ const SignUpForm = () => {
     watch,
   } = useForm({
     resolver: yupResolver(registerSchema),
-    mode: "onChange", // Validate on change
+    mode: "onChange",
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -28,7 +28,6 @@ const SignUpForm = () => {
   const isLoading = useSelector(selectIsLoading);
   const error = useSelector(selectError);
 
-  // Watch password field for validation
   const password = watch("password");
   const passwordIsDirty = dirtyFields.password;
   const passwordIsValid = passwordIsDirty && !errors.password;
@@ -46,11 +45,10 @@ const SignUpForm = () => {
         navigate("/recommended");
       }
     } catch (error) {
-      // Error is handled by the redux slice
+      toast.error(error);
     }
   };
 
-  // Function to determine input container class based on validation state
   const getInputContainerClass = (fieldName) => {
     if (dirtyFields[fieldName]) {
       if (errors[fieldName]) {
@@ -62,18 +60,19 @@ const SignUpForm = () => {
     return styles.inputContainer;
   };
 
-  // Function to show status message
   const getStatusMessage = (fieldName) => {
     if (fieldName === "name") {
       return null;
     }
     if (dirtyFields[fieldName]) {
-      if (errors[fieldName]) {
+      if (errors && errors[fieldName]) {
         return (
           <p className={styles.errorMessage}>
-            {errors[fieldName].message || "Enter a valid value"}
+            {errors[fieldName]?.message || "Enter a valid value"}
           </p>
         );
+      }
+      if (fieldName === "password" && passwordIsValid) {
         return <p className={styles.successMessage}>Password is secure</p>;
       }
     }
@@ -101,7 +100,6 @@ const SignUpForm = () => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-          {/* Name field */}
           <div className={styles.formField}>
             <div className={getInputContainerClass("name")}>
               <span className={styles.innerLabel}>Name:</span>
@@ -127,7 +125,6 @@ const SignUpForm = () => {
             {getStatusMessage("name")}
           </div>
 
-          {/* Email field */}
           <div className={styles.formField}>
             <div className={getInputContainerClass("email")}>
               <span className={styles.innerLabel}>Mail:</span>
@@ -153,7 +150,6 @@ const SignUpForm = () => {
             {getStatusMessage("email")}
           </div>
 
-          {/* Password field */}
           <div className={styles.formField}>
             <div className={getInputContainerClass("password")}>
               <span className={styles.innerLabel}>Password:</span>

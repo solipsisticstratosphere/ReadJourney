@@ -1,5 +1,5 @@
 import styles from "./BookCompletedModal.module.css";
-import booksIcon from "../../assets/images/smallBooks.png"; // Use your existing books icon or import a new one
+import booksIcon from "../../assets/images/smallBooks.png";
 
 const BookCompletedModal = ({ isOpen, onClose, bookTitle }) => {
   if (!isOpen) return null;

@@ -9,7 +9,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Loader from "../Loader/Loader";
 
-// Используем React.lazy для компонентов
 const Layout = lazy(() => import("../Layout/Layout"));
 const RegisterPage = lazy(() =>
   import("../../pages/RegisterPage/RegisterPage")

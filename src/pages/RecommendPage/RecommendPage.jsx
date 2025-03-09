@@ -23,10 +23,10 @@ import {
   selectRecommendedPerPage,
   selectBookFilters,
   selectSelectedBook,
-  selectLibraryAddBookError, // Import the new selector
+  selectLibraryAddBookError,
 } from "../../redux/books/selectors";
 
-import { clearAddBookError } from "../../redux/books/slice"; // Import the new action
+import { clearAddBookError } from "../../redux/books/slice";
 
 import styles from "./RecommendedPage.module.css";
 import BookDetailsModal from "../../components/BookDetailsModal/BookDetailsModal";
@@ -34,21 +34,18 @@ import BookDetailsModal from "../../components/BookDetailsModal/BookDetailsModal
 const RecommendedPage = () => {
   const dispatch = useDispatch();
 
-  // Select data from Redux store
   const books = useSelector(selectRecommendedBooks);
   const isLoading = useSelector(selectRecommendedBooksLoading);
   const currentPage = useSelector(selectRecommendedCurrentPage);
   const totalPages = useSelector(selectRecommendedTotalPages);
   const filters = useSelector(selectBookFilters);
   const selectedBook = useSelector(selectSelectedBook);
-  const addBookError = useSelector(selectLibraryAddBookError); // New selector
+  const addBookError = useSelector(selectLibraryAddBookError);
 
-  // Load books on initial render and setup responsive listener
   useEffect(() => {
     const cleanupListener = dispatch(setupResponsiveListener());
     dispatch(loadRecommendedBooks());
 
-    // Очищаем слушатель при размонтировании компонента
     return () => {
       if (typeof cleanupListener === "function") {
         cleanupListener();
@@ -56,14 +53,12 @@ const RecommendedPage = () => {
     };
   }, [dispatch]);
 
-  // Clear add book error when modal is closed
   useEffect(() => {
     if (!selectedBook) {
       dispatch(clearAddBookError());
     }
   }, [selectedBook, dispatch]);
 
-  // Handlers
   const handlePageChange = (newPage) => {
     dispatch(changeRecommendedPage(newPage));
   };
@@ -84,7 +79,6 @@ const RecommendedPage = () => {
     dispatch(addBookAndCloseModal(bookId));
   };
 
-  // Check if modal should be open
   const isModalOpen = !!selectedBook;
 
   return (
@@ -107,7 +101,7 @@ const RecommendedPage = () => {
           book={selectedBook}
           onClose={handleCloseModal}
           onAddToLibrary={() => handleAddToLibrary(selectedBook._id)}
-          addBookError={addBookError} // Pass the error to the modal
+          addBookError={addBookError}
         />
       )}
     </div>

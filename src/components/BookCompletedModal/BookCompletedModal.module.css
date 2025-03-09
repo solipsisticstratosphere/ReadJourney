@@ -12,7 +12,7 @@
 }
 
 .modalContent {
-  background-color: #1e1e1e; /* Dark background matching the image */
+  background-color: #1e1e1e;
   border-radius: 12px;
   padding: 40px 24px;
   width: 90%;
@@ -63,14 +63,14 @@
 
 .modalText {
   font-size: 16px;
-  color: #999999; /* Light gray text color */
+  color: #999999;
   line-height: 1.5;
   max-width: 300px;
   margin: 0 auto;
 }
 
 .highlight {
-  color: #f6f7f8; /* White for the highlighted text */
+  color: #f6f7f8;
   font-weight: 500;
 }
 

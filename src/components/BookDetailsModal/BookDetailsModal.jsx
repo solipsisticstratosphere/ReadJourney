@@ -6,7 +6,7 @@ const BookDetailsModal = ({
   onClose,
   onAddToLibrary,
   onStartReading,
-  addBookError, // Error from Redux state
+  addBookError,
 }) => {
   const modalRef = useRef(null);
 
@@ -26,7 +26,6 @@ const BookDetailsModal = ({
     document.addEventListener("keydown", handleEsc);
     document.addEventListener("mousedown", handleClickOutside);
 
-    // Prevent scrolling of the body when modal is open
     document.body.style.overflow = "hidden";
 
     return () => {
@@ -63,7 +62,6 @@ const BookDetailsModal = ({
               </p>
             )}
 
-            {/* Improved error handling */}
             {addBookError && (
               <p className={styles.errorMessage}>
                 {addBookError === "This book is already in your library"
@@ -72,7 +70,6 @@ const BookDetailsModal = ({
               </p>
             )}
 
-            {/* Show Add to library button if that callback is provided */}
             {onAddToLibrary && (
               <button
                 className={styles.addToLibraryButton}
@@ -85,7 +82,6 @@ const BookDetailsModal = ({
               </button>
             )}
 
-            {/* Show Start reading button if that callback is provided */}
             {onStartReading && (
               <button
                 className={styles.addToLibraryButton}
