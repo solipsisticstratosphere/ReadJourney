@@ -108,7 +108,6 @@ const SignUpForm = () => {
               <input
                 type="text"
                 {...registerField("name")}
-                placeholder="Ilona Ratushniak"
                 className={styles.input}
               />
               {dirtyFields.name && (
@@ -135,7 +134,6 @@ const SignUpForm = () => {
               <input
                 type="email"
                 {...registerField("email")}
-                placeholder="Your@email.com"
                 className={styles.input}
               />
               {dirtyFields.email && (
@@ -162,7 +160,6 @@ const SignUpForm = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 {...registerField("password")}
-                placeholder="Yourpasswordhere"
                 className={styles.input}
               />
               <button

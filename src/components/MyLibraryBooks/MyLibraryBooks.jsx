@@ -5,7 +5,7 @@ import {
   removeBookAndRefresh,
   removeBookFromLibraryAsync,
 } from "../../redux/books/operations";
-
+import booksIcon from "../../assets/images/smallBooks.png";
 const MyLibraryBooks = ({
   books,
   isLoading,
@@ -37,9 +37,9 @@ const MyLibraryBooks = ({
             onChange={(e) => onFilterChange(e.target.value)}
           >
             <option value="all">All books</option>
-            <option value="in-progress">Reading</option>
-            <option value="finished">Finished</option>
-            <option value="unread">To read</option>
+            <option value="in-progress">In progress</option>
+            <option value="done">Done</option>
+            <option value="unread">Unread</option>
           </select>
         </div>
       </div>
@@ -61,11 +61,11 @@ const MyLibraryBooks = ({
       ) : (
         <div className={styles.emptyState}>
           <div className={styles.emptyStateIcon}>
-            <img src="/images/books-stack.svg" alt="Books stack" />
+            <img src={booksIcon} alt="Books" className={styles.booksIcon} />
           </div>
           <p className={styles.emptyStateText}>
             To start training, add{" "}
-            <span className={styles.highlight}>one of your books</span> or from
+            <span className={styles.highlight}>some of your books</span> or from
             the recommended ones
           </p>
         </div>

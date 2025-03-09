@@ -146,8 +146,18 @@ const ReadingPage = () => {
         />
 
         <div className={styles.bookDisplaySide}>
-          <h2 className={styles.sectionTitle}>My reading</h2>
-
+          <div className={styles.titleAndHours}>
+            <h2 className={styles.sectionTitle}>My reading</h2>
+            {book.timeLeftToRead && (
+              <h2 className={styles.sectionHours}>
+                {book.timeLeftToRead.hours}
+                {book.timeLeftToRead.hours === 1 ? " hour " : " hours "}
+                {book.timeLeftToRead.minutes}
+                {book.timeLeftToRead.minutes === 1 ? " minute" : " minutes"}
+                {" left"}
+              </h2>
+            )}
+          </div>
           <div className={styles.bookContainer}>
             <div className={styles.bookCover}>
               <img

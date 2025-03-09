@@ -3,11 +3,11 @@ import axios from "axios";
 export const setupAxios = (store) => {
   axios.defaults.baseURL = "https://readjourney.b.goit.study/api";
 
-  // Флаг для отслеживания процесса обновления токена
+  // Flag to track token refresh process
   let isRefreshing = false;
   let failedQueue = [];
 
-  // Обработка очереди запросов
+  // Process queue of requests
   const processQueue = (error, token = null) => {
     failedQueue.forEach((prom) => {
       if (error) {
@@ -20,7 +20,7 @@ export const setupAxios = (store) => {
     failedQueue = [];
   };
 
-  // Запрос интерцептор
+  // Request interceptor
   axios.interceptors.request.use(
     (config) => {
       const state = store.getState();
@@ -35,14 +35,14 @@ export const setupAxios = (store) => {
     }
   );
 
-  // Ответ интерцептор
+  // Response interceptor
   axios.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
 
       if (error.response?.status === 401 && !originalRequest._retry) {
-        // Если мы уже обновляем токен, добавим запрос в очередь
+        // If we're already refreshing the token, add request to queue
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
@@ -65,15 +65,14 @@ export const setupAxios = (store) => {
             throw new Error("No refresh token available");
           }
 
-          // Важное исправление: правильный URL для обновления токена
-          // '/auth/refresh' должен быть заменен на '/users/refresh'
-          const { data } = await axios.post(
-            "/users/current/refresh", // Исправлено с '/auth/refresh'
-            { refreshToken },
-            { _retry: true } // Помечаем запрос, чтобы избежать зацикливания
-          );
+          // FIXED: Using the correct endpoint for token refresh with GET method
+          const { data } = await axios.get("/users/current/refresh", {
+            headers: {
+              Authorization: `Bearer ${refreshToken}`,
+            },
+          });
 
-          // Диспатчим действие для обновления токенов в хранилище
+          // Dispatch action to update tokens in store
           store.dispatch({
             type: "auth/refreshTokenSuccess",
             payload: {
@@ -82,19 +81,19 @@ export const setupAxios = (store) => {
             },
           });
 
-          // Обрабатываем очередь запросов
+          // Process queued requests
           processQueue(null, data.token);
 
-          // Устанавливаем новый токен для текущего запроса
+          // Set new token for current request
           originalRequest.headers.Authorization = `Bearer ${data.token}`;
 
-          // Возвращаемся к исходному запросу с новым токеном
+          // Retry original request with new token
           return axios(originalRequest);
         } catch (refreshError) {
-          // Обрабатываем все ожидающие запросы с ошибкой
+          // Process all pending requests with error
           processQueue(refreshError, null);
 
-          // Выходим из системы при неудачном обновлении токена
+          // Log out on failed token refresh
           store.dispatch({
             type: "auth/logout/fulfilled",
           });

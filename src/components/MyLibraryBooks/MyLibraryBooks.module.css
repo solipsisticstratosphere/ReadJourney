@@ -1,7 +1,10 @@
 .container {
+  border-radius: 30px;
+  padding: 40px;
   flex: 1;
   display: flex;
   flex-direction: column;
+  background-color: var(--secondary-color-3);
 }
 
 .header {
@@ -21,32 +24,45 @@
 }
 
 .filterSelect {
-  background-color: #1e1e1e;
+  background-color: var(--secondary-color-2);
   border: 1px solid rgba(249, 249, 249, 0.2);
-  border-radius: 8px;
-  padding: 8px 32px 8px 12px;
-  color: var(--primary-text-color);
+  border-radius: 16px;
+  padding: 12px 36px 12px 16px;
+  color: #fff;
   font-size: 14px;
   appearance: none;
   cursor: pointer;
+  min-width: 180px;
+  font-weight: 500;
 }
 
 .filterSelect:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: rgba(249, 249, 249, 0.4);
 }
 
 .filterContainer::after {
   content: "▼";
   position: absolute;
-  right: 12px;
+  right: 16px;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(-50%) rotate(0deg);
   pointer-events: none;
-  font-size: 10px;
-  color: #888;
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  transition: transform 0.2s ease;
 }
 
+.filterContainer:hover::after {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* For the dropdown options - may need extra styling */
+.filterSelect option {
+  background-color: rgba(39, 39, 39, 0.95);
+  color: #fff;
+  padding: 10px;
+}
 .booksGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -73,22 +89,30 @@
 }
 
 .emptyStateIcon {
-  width: 100px;
-  height: 100px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  border-radius: 50%;
+  background-color: var(--secondary-color-2);
+  width: 130px;
+  height: 130px;
   margin-bottom: 24px;
 }
 
 .emptyStateText {
   font-size: 16px;
   line-height: 1.5;
-  color: #888;
+  color: var(--primary-text-color);
   max-width: 400px;
 }
 
 .highlight {
-  color: var(--primary-color);
+  color: var(--primary-color-grey);
 }
-
+.booksIcon {
+  width: 70px;
+  height: 70px;
+}
 @media screen and (max-width: 768px) {
   .header {
     flex-direction: column;

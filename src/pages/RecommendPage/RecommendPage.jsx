@@ -81,7 +81,7 @@ const RecommendedPage = () => {
   };
 
   const handleAddToLibrary = (bookId) => {
-    dispatch(addBookToLibraryAsync(bookId));
+    dispatch(addBookAndCloseModal(bookId));
   };
 
   // Check if modal should be open

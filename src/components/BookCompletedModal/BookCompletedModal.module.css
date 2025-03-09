@@ -1,0 +1,89 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: #1e1e1e; /* Dark background matching the image */
+  border-radius: 12px;
+  padding: 40px 24px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  text-align: center;
+}
+
+.closeButton {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: white;
+}
+
+.congratsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.booksIconContainer {
+  margin-bottom: 24px;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.booksIcon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.modalTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 16px;
+}
+
+.modalText {
+  font-size: 16px;
+  color: #999999; /* Light gray text color */
+  line-height: 1.5;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.highlight {
+  color: #f6f7f8; /* White for the highlighted text */
+  font-weight: 500;
+}
+
+@media (max-width: 576px) {
+  .modalContent {
+    padding: 30px 20px;
+  }
+
+  .modalTitle {
+    font-size: 20px;
+  }
+
+  .modalText {
+    font-size: 14px;
+  }
+}

@@ -24,6 +24,8 @@ import smallBooks from "../../assets/images/smallBooks.png";
 import star from "../../assets/images/star.png";
 import SuccessModal from "../ModalSuccess/ModalSuccess";
 import { addBookSchema, readingPageSchema } from "../../utils/validations";
+import BookCompletedModal from "../BookCompletedModal/BookCompletedModal";
+import { toast } from "react-toastify";
 
 const Dashboard = ({
   page,
@@ -45,17 +47,27 @@ const Dashboard = ({
   const currentBook = useSelector(selectCurrentBook);
   const isReadingActive = useSelector(selectIsReadingActive);
   const [activeView, setActiveView] = useState("statistics");
-
+  const [showBookCompletedModal, setShowBookCompletedModal] = useState(false);
   const totalPagesRead = currentBook?.progress
     ? currentBook.progress.reduce(
-        (total, session) => total + (session.finishPage - session.startPage),
+        (total, session) =>
+          total + (session.finishPage - session.startPage + 1),
         0
       )
     : 0;
 
   // Calculate total pages in the book
   const totalPages = currentBook?.totalPages || 0;
-
+  const validateCurrentPage = (value) => {
+    const lastFinishPage =
+      currentBook?.progress?.length > 0
+        ? currentBook.progress[currentBook.progress.length - 1].finishPage
+        : 0;
+    const pageNum = parseInt(value);
+    return (
+      pageNum > lastFinishPage || "Page must be greater than last finished page"
+    );
+  };
   // Calculate percentage of book read
   const calculatePercentage = () => {
     // If reading is active and no previous progress, show 100%
@@ -226,7 +238,7 @@ const Dashboard = ({
   const {
     register,
     handleSubmit: processSubmit,
-    formState: { errors, dirtyFields, isSubmitted },
+    formState: { errors, dirtyFields, isSubmitted, isValid },
     reset,
     watch,
     setValue,
@@ -245,7 +257,7 @@ const Dashboard = ({
               externalFormControl?.initialPage ||
               (currentBook.progress?.length > 0
                 ? currentBook.progress[currentBook.progress.length - 1]
-                    .finishPage
+                    .finishPage + 1
                 : 1),
           }
         : {
@@ -268,6 +280,20 @@ const Dashboard = ({
     }
   }, [currentBook, setValue, page, externalFormControl?.initialPage]);
 
+  useEffect(() => {
+    if (page === "reading" && currentBook?.progress?.length > 0) {
+      const lastFinishPage =
+        currentBook.progress[currentBook.progress.length - 1].finishPage;
+      const currentPageValue = watch("currentPage");
+
+      if (parseInt(currentPageValue) <= lastFinishPage) {
+        setValue("currentPage", lastFinishPage + 1, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      }
+    }
+  }, [page, currentBook, watch, setValue]);
   // Get input container class based on validation state
   const getInputContainerClass = (fieldName) => {
     if (dirtyFields[fieldName] || isSubmitted) {
@@ -288,22 +314,36 @@ const Dashboard = ({
     }
 
     if (page === "reading") {
+      const currentPageValue = parseInt(data.currentPage);
+      const lastFinishPage =
+        currentBook?.progress?.length > 0
+          ? currentBook.progress[currentBook.progress.length - 1].finishPage
+          : 0;
+
+      if (currentPageValue <= lastFinishPage) {
+        toast.error(`Page must be greater than ${lastFinishPage}`);
+        return;
+      }
       // Используем внешний обработчик, если он передан
       if (externalFormControl?.onSubmit) {
         try {
           await externalFormControl.onSubmit(data);
 
-          setNotificationMessage(
+          toast.success(
             externalFormControl.isReadingActive
               ? "Reading session stopped successfully"
               : "Reading session started successfully"
           );
-          setNotificationType("success");
-          setShowNotification(true);
+
+          if (
+            externalFormControl.isReadingActive &&
+            parseInt(data.currentPage) >=
+              (externalFormControl.totalPages || currentBook?.totalPages)
+          ) {
+            setShowBookCompletedModal(true);
+          }
         } catch (error) {
-          setNotificationMessage(error || "Failed to update reading session");
-          setNotificationType("error");
-          setShowNotification(true);
+          toast.error(error || "Failed to update reading session");
         }
         return;
       }
@@ -318,8 +358,11 @@ const Dashboard = ({
             })
           ).unwrap();
 
-          setNotificationMessage("Reading session stopped successfully");
-          setNotificationType("success");
+          toast.success("Reading session stopped successfully");
+
+          if (parseInt(data.currentPage) >= currentBook.totalPages) {
+            setShowBookCompletedModal(true);
+          }
         } else {
           await dispatch(
             startReadingSessionAsync({
@@ -328,14 +371,10 @@ const Dashboard = ({
             })
           ).unwrap();
 
-          setNotificationMessage("Reading session started successfully");
-          setNotificationType("success");
+          toast.success("Reading session started successfully");
         }
-        setShowNotification(true);
       } catch (error) {
-        setNotificationMessage(error || "Failed to update reading session");
-        setNotificationType("error");
-        setShowNotification(true);
+        toast.error(error || "Failed to update reading session");
       }
       return;
     }
@@ -358,9 +397,7 @@ const Dashboard = ({
       reset();
     } catch (error) {
       // Show error notification
-      setNotificationMessage(error || "Failed to add book to library");
-      setNotificationType("error");
-      setShowNotification(true);
+      toast.error(error || "Failed to add book to library");
     }
   };
 
@@ -369,13 +406,7 @@ const Dashboard = ({
     const errorMessages = Object.values(errors)
       .map((err) => err.message)
       .join(", ");
-    setNotificationMessage(errorMessages);
-    setNotificationType("error");
-    setShowNotification(true);
-  };
-
-  const handleNotificationClose = () => {
-    setShowNotification(false);
+    toast.error(errorMessages);
   };
 
   const handleBookClick = (book) => {
@@ -656,8 +687,9 @@ const Dashboard = ({
                         currentBook?.totalPages ||
                         1000
                       }
-                      placeholder="Page number"
-                      {...register("currentPage")}
+                      {...register("currentPage", {
+                        validate: validateCurrentPage,
+                      })}
                       onKeyPress={(e) => {
                         // Allow only digits and control keys
                         if (
@@ -695,6 +727,11 @@ const Dashboard = ({
                 isReadingActive ? styles.stopButton : styles.startButton
               }`}
               onClick={processSubmit(onSubmit, onError)}
+              disabled={
+                (currentBook?.status === "done" && !isReadingActive) ||
+                !isValid ||
+                !!errors.currentPage
+              }
             >
               {isReadingActive ? "To stop" : "To start"}
             </button>
@@ -898,22 +935,18 @@ const Dashboard = ({
           {/* Звездочка отображается в любом случае */}
         </div>
       )}
-      {showNotification && (
-        <div className={`${styles.notification} ${styles[notificationType]}`}>
-          <p>{notificationMessage}</p>
-          <button
-            className={styles.closeNotification}
-            onClick={handleNotificationClose}
-          >
-            ✕
-          </button>
-        </div>
-      )}
 
       {showSuccessModal && page === "library" && (
         <SuccessModal
           showSuccessModal={showSuccessModal}
           handleCloseSuccessModal={handleCloseSuccessModal}
+        />
+      )}
+      {showBookCompletedModal && currentBook && (
+        <BookCompletedModal
+          isOpen={showBookCompletedModal}
+          onClose={() => setShowBookCompletedModal(false)}
+          bookTitle={currentBook.title}
         />
       )}
     </div>

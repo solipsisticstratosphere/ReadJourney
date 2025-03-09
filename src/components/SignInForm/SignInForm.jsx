@@ -68,7 +68,6 @@ const SignInForm = () => {
               <input
                 type="email"
                 {...register("email")}
-                placeholder="Your@email.com"
                 className={styles.input}
               />
             </div>
@@ -83,7 +82,6 @@ const SignInForm = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 {...register("password")}
-                placeholder="Yourpasswordhere"
                 className={styles.input}
               />
               <button

@@ -10,6 +10,7 @@
 }
 
 .sectionTitle {
+  align-self: flex-start;
   margin-bottom: 8px;
   margin-top: 20px;
   margin-left: 14px;
@@ -137,6 +138,10 @@
   justify-content: center;
   transition: background-color 0.3s;
   margin-bottom: 40px;
+}
+.readingButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .applyButton:hover {
   background-color: rgba(255, 255, 255, 0.1);
@@ -644,7 +649,10 @@
   left: 32px; /* Подгоняем под квадратик */
   top: 1px; /* Удлиняем линию наверх */
 }
-
+.formReading {
+  flex-direction: column;
+  display: flex;
+}
 @keyframes slideIn {
   from {
     transform: translateX(100%);
@@ -694,5 +702,12 @@
   .dashboard {
     flex-direction: column;
     width: 100%;
+  }
+}
+@media (max-width: 540px) {
+  .readingDashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
   }
 }

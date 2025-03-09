@@ -70,37 +70,39 @@ export const refreshUser = createAsyncThunk(REFRESH, async (_, thunkAPI) => {
   }
 
   try {
-    // Если есть основной токен, попробуем его использовать
+    // Try using the main token first
     if (persistedToken) {
       setAuthHeader(persistedToken);
       try {
         const response = await axios.get("/users/current");
         return response.data;
       } catch (error) {
-        // Если основной токен не работает, но есть refresh token
+        // If main token doesn't work but we have a refresh token
         if (error.response?.status === 401 && persistedRefreshToken) {
-          // Продолжаем с refresh token
           console.log("Using refresh token to get new access token");
         } else {
-          throw error; // Если ошибка другая или нет refresh token, пробрасываем её дальше
+          throw error;
         }
       }
     }
 
-    // Попытка обновить токены с помощью refresh token
+    // Try refreshing tokens using the refresh endpoint
     if (persistedRefreshToken) {
       try {
-        const refreshResponse = await axios.post("/users/refresh", {
-          refreshToken: persistedRefreshToken,
+        // Use the correct endpoint for refreshing tokens (GET instead of POST)
+        const refreshResponse = await axios.get("/users/current/refresh", {
+          headers: {
+            Authorization: `Bearer ${persistedRefreshToken}`,
+          },
         });
 
-        // Сохраняем новые токены
+        // Save new tokens
         const newToken = refreshResponse.data.token;
         const newRefreshToken = refreshResponse.data.refreshToken;
 
         setAuthHeader(newToken);
 
-        // Получаем данные пользователя с новым токеном
+        // Get user data with new token
         const userResponse = await axios.get("/users/current");
 
         return {
