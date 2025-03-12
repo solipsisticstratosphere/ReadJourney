@@ -103,12 +103,12 @@ const fetchUserLibraryApi = async () => {
 
 const loadBookForReadingApi = async (bookId) => {
   try {
-    console.log("API call with bookId:", bookId);
+    
     const response = await axios.get(`/books/${bookId}`);
-    console.log("API response:", response.data);
+    
     return response.data;
   } catch (error) {
-    console.error("API error:", error);
+ 
     throw new Error(
       error.response?.data?.message || "Failed to load book for reading"
     );
@@ -237,12 +237,12 @@ export const loadBookForReadingAsync = createAsyncThunk(
   "books/loadBookForReading",
   async (bookId, { rejectWithValue }) => {
     try {
-      console.log("Thunk with bookId:", bookId);
+     
       const result = await loadBookForReadingApi(bookId);
-      console.log("Thunk result:", result);
+      
       return result;
     } catch (error) {
-      console.error("Thunk error:", error);
+      
       return rejectWithValue(error.message);
     }
   }
@@ -388,4 +388,3 @@ export const removeBookAndRefresh = (bookId) => async (dispatch) => {
   await dispatch(removeBookFromLibraryAsync(bookId));
   dispatch(fetchUserLibraryAsync());
 };
-``;

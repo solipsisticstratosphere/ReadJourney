@@ -101,12 +101,10 @@ export const refreshUser = createAsyncThunk(REFRESH, async (_, thunkAPI) => {
           refreshToken: newRefreshToken,
         };
       } catch (refreshError) {
-        console.error("Token refresh failed:", refreshError);
         return thunkAPI.rejectWithValue("Token refresh failed");
       }
     }
   } catch (error) {
-    console.error("Failed to refresh user:", error);
     return thunkAPI.rejectWithValue(
       error.response?.data?.message || "Failed to refresh user"
     );
