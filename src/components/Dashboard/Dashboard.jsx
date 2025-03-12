@@ -68,11 +68,12 @@ const Dashboard = ({
   const hasProgress = page === "reading" && currentBook?.progress?.length > 0;
 
   const totalPagesRead = currentBook?.progress
-    ? currentBook.progress.reduce(
-        (total, session) =>
-          total + (session.finishPage - session.startPage + 1),
-        0
-      )
+    ? currentBook.progress.reduce((total, session) => {
+        // Проверить, что startPage и finishPage действительные числа
+        const startPage = isNaN(session.startPage) ? 0 : session.startPage;
+        const finishPage = isNaN(session.finishPage) ? 0 : session.finishPage;
+        return total + (finishPage - startPage + 1);
+      }, 0)
     : 0;
 
   const totalPages = currentBook?.totalPages || 0;
@@ -170,14 +171,13 @@ const Dashboard = ({
 
   useEffect(() => {
     if (page === "reading" && currentBook) {
-      setValue(
-        "currentPage",
+      const newValue =
         externalFormControl?.initialPage ||
-          (currentBook.progress?.length > 0
-            ? currentBook.progress[currentBook.progress.length - 1].finishPage +
-              1
-            : 1)
-      );
+        (currentBook.progress?.length > 0
+          ? currentBook.progress[currentBook.progress.length - 1].finishPage + 1
+          : 1);
+
+      setValue("currentPage", isNaN(newValue) ? 1 : newValue);
     }
   }, [currentBook, setValue, page, externalFormControl?.initialPage]);
 

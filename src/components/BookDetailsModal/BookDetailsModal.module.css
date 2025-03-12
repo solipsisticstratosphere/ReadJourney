@@ -11,7 +11,11 @@
   z-index: 1000;
   padding: 20px;
 }
-
+.errorMessage {
+  color: burlywood;
+  font-size: 20px;
+  margin-top: 10px;
+}
 .modal {
   background-color: #1e1e1e;
   border-radius: 12px;

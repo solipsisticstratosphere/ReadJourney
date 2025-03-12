@@ -1,5 +1,6 @@
 import { createAction, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { clearAddBookError, setAddBookError } from "./slice";
 
 export const getPerPageByScreenWidth = () => {
   if (typeof window === "undefined") {
@@ -361,9 +362,22 @@ export const selectBookDetails = (book) => (dispatch) => {
   dispatch({ type: "books/setSelectedBook", payload: book });
 };
 
-export const addBookAndCloseModal = (bookId) => async (dispatch) => {
-  await dispatch(addBookToLibraryAsync(bookId));
-  dispatch({ type: "books/clearSelectedBook" });
+export const addBookAndCloseModal = (bookId) => (dispatch, getState) => {
+  const currentLibrary = getState().books.library.items;
+  const selectedBook = getState().books.selectedBook;
+
+  const isBookInLibrary = currentLibrary.some(
+    (book) => book.title.toLowerCase() === selectedBook.title.toLowerCase()
+  );
+
+  if (isBookInLibrary) {
+    dispatch(setAddBookError("This book is already in your library"));
+  } else {
+    dispatch(clearAddBookError());
+    dispatch(addBookToLibraryAsync(bookId)).then(() => {
+      dispatch(clearSelectedBook());
+    });
+  }
 };
 
 export const clearSelectedBook = () => (dispatch) => {

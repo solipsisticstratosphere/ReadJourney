@@ -70,6 +70,9 @@ const booksSlice = createSlice({
     clearAddBookError: (state) => {
       state.library.addBookError = null;
     },
+    setAddBookError: (state, action) => {
+      state.library.addBookError = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -247,6 +250,7 @@ export const {
   clearSelectedBook,
   updatePerPage,
   clearAddBookError,
+  setAddBookError,
 } = booksSlice.actions;
 
 export default booksSlice.reducer;

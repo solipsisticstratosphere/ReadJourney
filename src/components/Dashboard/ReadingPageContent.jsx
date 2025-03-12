@@ -29,6 +29,36 @@ const ReadingPageContent = ({
 }) => {
   if (!currentBook) return null;
 
+  const safeTotalPagesRead =
+    typeof totalPagesRead === "number" && !isNaN(totalPagesRead)
+      ? totalPagesRead
+      : 0;
+
+  const safePercentageRead =
+    typeof percentageRead === "number" && !isNaN(percentageRead)
+      ? Math.round(percentageRead)
+      : 0;
+
+  const safeCircumference =
+    typeof circumference === "number" && !isNaN(circumference)
+      ? circumference
+      : 502;
+
+  const safeStrokeDashoffset =
+    typeof strokeDashoffset === "number" && !isNaN(strokeDashoffset)
+      ? strokeDashoffset
+      : safeCircumference;
+
+  const displayPercentage =
+    isReadingActive && safeTotalPagesRead === 0
+      ? "0%"
+      : `${safePercentageRead}%`;
+
+  const displayPagesRead =
+    isReadingActive && safeTotalPagesRead === 0
+      ? "Reading session started"
+      : `${safeTotalPagesRead} pages read`;
+
   return (
     <div className={styles.readingDashboard}>
       <div className={styles.filtersFormReadingView}>
@@ -154,8 +184,8 @@ const ReadingPageContent = ({
                     fill="none"
                     stroke="#3CBF3C"
                     strokeWidth="16"
-                    strokeDasharray={circumference.toString()}
-                    strokeDashoffset={strokeDashoffset.toString()}
+                    strokeDasharray={safeCircumference}
+                    strokeDashoffset={safeStrokeDashoffset}
                     style={{
                       transition: "stroke-dashoffset 0.5s ease-in-out",
                       transform: "rotate(-90deg)",
@@ -164,99 +194,127 @@ const ReadingPageContent = ({
                   />
                 </svg>
                 <div className={styles.progressContent}>
-                  <div className={styles.percentage}>
-                    {isReadingActive && totalPagesRead === 0
-                      ? "100%"
-                      : `${percentageRead || 0}%`}
-                  </div>
+                  <div className={styles.percentage}>{displayPercentage}</div>
                   <div className={styles.secondaryProgress}>
-                    <span className={styles.pagesRead}>
-                      {isReadingActive && totalPagesRead === 0
-                        ? "Reading session started"
-                        : `${totalPagesRead || 0} pages read`}
-                    </span>
+                    <span className={styles.pagesRead}>{displayPagesRead}</span>
                   </div>
                 </div>
               </div>
             </div>
           ) : (
             <div className={styles.diaryContent}>
-              {processedEntriesWithDateFlag.map((dateEntry, index) => (
-                <div key={index} className={styles.diaryEntry}>
-                  <div className={styles.headerRow}>
-                    <div
-                      className={styles.entryDate}
-                      style={{
-                        color:
-                          processedEntriesWithDateFlag.length === 1 ||
-                          index === processedEntriesWithDateFlag.length - 1
-                            ? "var(--primary-text-color)"
-                            : "var(--primary-text-color)",
-                      }}
-                    >
-                      <div className={styles.entryDateText}>
-                        <svg
-                          className={styles.deleteIcon}
-                          width="20"
-                          height="20"
+              {Array.isArray(processedEntriesWithDateFlag)
+                ? processedEntriesWithDateFlag.map((dateEntry, index) => (
+                    <div key={index} className={styles.diaryEntry}>
+                      <div className={styles.headerRow}>
+                        <div
+                          className={styles.entryDate}
                           style={{
-                            fill:
+                            color:
+                              processedEntriesWithDateFlag.length === 1 ||
                               index === processedEntriesWithDateFlag.length - 1
-                                ? "red"
-                                : "white",
+                                ? "var(--primary-text-color)"
+                                : "var(--primary-text-color)",
                           }}
                         >
-                          <use href="/sprite.svg#square" />
-                        </svg>
-
-                        {dateEntry.date}
-                      </div>
-                      <div className={styles.pageCount}>
-                        {dateEntry.totalDatePages} pages
-                      </div>
-                    </div>
-                  </div>
-
-                  {dateEntry.entries.map((entry, entryIndex) => (
-                    <div key={entryIndex} className={styles.detailsRow}>
-                      <div className={styles.progressBar}>
-                        <div
-                          className={styles.progressFill}
-                          style={{ width: `${entry.percentage}%` }}
-                        ></div>
-                      </div>
-                      <div className={styles.percentage}>
-                        {entry.percentage}%
-                        <div className={styles.readingTime}>
-                          {entry.time} minutes
-                        </div>
-                      </div>
-                      <div className={styles.imgAndButton}>
-                        <div className={styles.readingSpeed}>
-                          <svg className={styles.readingSpeedSvg}>
-                            <use href="/sprite.svg#trend" />
-                          </svg>
-                          {entry.pagesPerHour} pages per hour
-                        </div>
-                        <button
-                          className={styles.deleteButton}
-                          onClick={() => handleDeleteSession(entry._id)}
-                        >
-                          <div>
+                          <div className={styles.entryDateText}>
                             <svg
                               className={styles.deleteIcon}
                               width="20"
                               height="20"
+                              style={{
+                                fill:
+                                  index ===
+                                  processedEntriesWithDateFlag.length - 1
+                                    ? "red"
+                                    : "white",
+                              }}
                             >
-                              <use href="/sprite.svg#trash-bin" />
+                              <use href="/sprite.svg#square" />
                             </svg>
+
+                            {dateEntry?.date || "Unknown date"}
                           </div>
-                        </button>
+                          <div className={styles.pageCount}>
+                            {typeof dateEntry?.totalDatePages === "number" &&
+                            !isNaN(dateEntry.totalDatePages)
+                              ? dateEntry.totalDatePages
+                              : 0}{" "}
+                            pages
+                          </div>
+                        </div>
                       </div>
+
+                      {Array.isArray(dateEntry?.entries)
+                        ? dateEntry.entries.map((entry, entryIndex) => {
+                            // Ensure entry values are valid numbers
+                            const entryPercentage =
+                              typeof entry?.percentage === "number" &&
+                              !isNaN(entry.percentage)
+                                ? entry.percentage
+                                : 0;
+
+                            const entryTime =
+                              typeof entry?.time === "number" &&
+                              !isNaN(entry.time)
+                                ? entry.time
+                                : 0;
+
+                            const entryPagesPerHour =
+                              typeof entry?.pagesPerHour === "number" &&
+                              !isNaN(entry.pagesPerHour)
+                                ? entry.pagesPerHour
+                                : 0;
+
+                            return (
+                              <div
+                                key={entryIndex}
+                                className={styles.detailsRow}
+                              >
+                                <div className={styles.progressBar}>
+                                  <div
+                                    className={styles.progressFill}
+                                    style={{ width: `${entryPercentage}%` }}
+                                  ></div>
+                                </div>
+                                <div className={styles.percentage}>
+                                  {entryPercentage}%
+                                  <div className={styles.readingTime}>
+                                    {entryTime} minutes
+                                  </div>
+                                </div>
+                                <div className={styles.imgAndButton}>
+                                  <div className={styles.readingSpeed}>
+                                    <svg className={styles.readingSpeedSvg}>
+                                      <use href="/sprite.svg#trend" />
+                                    </svg>
+                                    {entryPagesPerHour} pages per hour
+                                  </div>
+                                  <button
+                                    className={styles.deleteButton}
+                                    onClick={() =>
+                                      entry?._id &&
+                                      handleDeleteSession(entry._id)
+                                    }
+                                  >
+                                    <div>
+                                      <svg
+                                        className={styles.deleteIcon}
+                                        width="20"
+                                        height="20"
+                                      >
+                                        <use href="/sprite.svg#trash-bin" />
+                                      </svg>
+                                    </div>
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })
+                        : null}
                     </div>
-                  ))}
-                </div>
-              ))}
+                  ))
+                : null}
             </div>
           )}
         </div>
