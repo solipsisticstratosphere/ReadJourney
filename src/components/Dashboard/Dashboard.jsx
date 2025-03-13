@@ -432,7 +432,7 @@ const Dashboard = ({
       0;
 
     if (currentPageValue <= lastFinishPage) {
-      setValidationError(
+      toast.error(
         `Page must be greater than the last finished page (${lastFinishPage})`
       );
       return;
