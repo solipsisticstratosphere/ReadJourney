@@ -52,6 +52,7 @@ const Dashboard = ({
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showBookCompletedModal, setShowBookCompletedModal] = useState(false);
   const [addedBook, setAddedBook] = useState(null);
+  const [validationError, setValidationError] = useState("");
 
   // ==================== SELECTORS ====================
 
@@ -69,7 +70,6 @@ const Dashboard = ({
 
   const totalPagesRead = currentBook?.progress
     ? currentBook.progress.reduce((total, session) => {
-        // Проверить, что startPage и finishPage действительные числа
         const startPage = isNaN(session.startPage) ? 0 : session.startPage;
         const finishPage = isNaN(session.finishPage) ? 0 : session.finishPage;
         return total + (finishPage - startPage + 1);
@@ -113,14 +113,38 @@ const Dashboard = ({
   };
 
   const validateCurrentPage = (value) => {
+    if (!isReadingActive && (value === "" || value === null)) {
+      return "Please enter a valid page number";
+    }
+
+    if (isReadingActive && (value === "" || value === null)) {
+      return "Please enter the page number you finished reading";
+    }
+
+    const pageNum = parseInt(value);
+    if (isNaN(pageNum)) {
+      return "Please enter a valid page number";
+    }
+
+    if (isReadingActive && currentBook?.progress?.length > 0) {
+      const currentSession = currentBook.progress.find(
+        (session) => !session.finishReading
+      );
+      if (currentSession && pageNum <= currentSession.startPage) {
+        return `Page must be greater than the current session's start page (${currentSession.startPage})`;
+      }
+    }
+
     const lastFinishPage =
       currentBook?.progress?.length > 0
-        ? currentBook.progress[currentBook.progress.length - 1].finishPage
+        ? currentBook.progress
+            .filter((session) => session.finishReading)
+            .reduce((max, session) => Math.max(max, session.finishPage || 0), 0)
         : 0;
-    const pageNum = parseInt(value);
-    return (
-      pageNum > lastFinishPage || "Page must be greater than last finished page"
-    );
+
+    return pageNum > lastFinishPage
+      ? true
+      : `Page must be greater than the last finished page (${lastFinishPage})`;
   };
 
   const schema = getFormSchema();
@@ -133,6 +157,7 @@ const Dashboard = ({
     reset,
     watch,
     setValue,
+    trigger,
   } = useForm({
     resolver,
     mode: "onChange",
@@ -172,7 +197,6 @@ const Dashboard = ({
 
   useEffect(() => {
     if (page === "reading" && currentBook) {
-      // If reading is active, leave the field empty
       if (isReadingActive) {
         setValue("currentPage", "");
         return;
@@ -181,7 +205,12 @@ const Dashboard = ({
       const newValue =
         externalFormControl?.initialPage ||
         (currentBook.progress?.length > 0
-          ? currentBook.progress[currentBook.progress.length - 1].finishPage + 1
+          ? currentBook.progress
+              .filter((session) => session.finishReading)
+              .reduce(
+                (max, session) => Math.max(max, session.finishPage || 0),
+                0
+              ) + 1
           : 1);
 
       setValue("currentPage", isNaN(newValue) ? 1 : newValue);
@@ -196,19 +225,31 @@ const Dashboard = ({
 
   useEffect(() => {
     if (page === "reading" && currentBook?.progress?.length > 0) {
-      const lastFinishPage =
-        currentBook.progress[currentBook.progress.length - 1].finishPage;
+      setValidationError("");
+
+      const lastFinishPage = currentBook.progress
+        .filter((session) => session.finishReading)
+        .reduce((max, session) => Math.max(max, session.finishPage || 0), 0);
+
       const currentPageValue = watch("currentPage");
 
-      if (parseInt(currentPageValue) <= lastFinishPage) {
+      if (!isReadingActive && parseInt(currentPageValue) <= lastFinishPage) {
         setValue("currentPage", lastFinishPage + 1, {
           shouldValidate: true,
           shouldDirty: true,
         });
       }
     }
-  }, [page, currentBook, watch, setValue]);
+  }, [page, currentBook, watch, setValue, isReadingActive]);
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (name === "currentPage" && validationError) {
+        setValidationError("");
+      }
+    });
 
+    return () => subscription.unsubscribe();
+  }, [watch, validationError]);
   // ==================== HELPERS ====================
 
   const processProgressData = () => {
@@ -280,6 +321,11 @@ const Dashboard = ({
   }));
 
   const getInputContainerClass = (fieldName) => {
+    // Add custom validation error check
+    if (validationError && fieldName === "currentPage") {
+      return styles.inputContainerError;
+    }
+
     if (dirtyFields[fieldName] || isSubmitted) {
       if (errors[fieldName]) {
         return styles.inputContainerError;
@@ -291,6 +337,11 @@ const Dashboard = ({
   };
 
   const getStatusMessage = (fieldName) => {
+    // Display custom validation error
+    if (validationError && fieldName === "currentPage") {
+      return <span className={styles.error}>{validationError}</span>;
+    }
+
     if ((dirtyFields[fieldName] || isSubmitted) && errors[fieldName]) {
       return <span className={styles.error}>{errors[fieldName].message}</span>;
     }
@@ -334,6 +385,8 @@ const Dashboard = ({
   };
 
   const onSubmit = async (data) => {
+    setValidationError("");
+
     if (page === "recommended") {
       onFilterSubmit(data);
       return;
@@ -349,14 +402,39 @@ const Dashboard = ({
   };
 
   const handleReadingSubmit = async (data) => {
+    if (isReadingActive && (!data.currentPage || data.currentPage === "")) {
+      setValidationError("Please enter the page number you finished reading");
+      return;
+    }
+
     const currentPageValue = parseInt(data.currentPage);
+    if (isNaN(currentPageValue)) {
+      setValidationError("Please enter a valid page number");
+      return;
+    }
+
+    if (isReadingActive && currentBook?.progress?.length > 0) {
+      const currentSession = currentBook.progress.find(
+        (session) => !session.finishReading
+      );
+      if (currentSession && currentPageValue <= currentSession.startPage) {
+        setValidationError(
+          `Page must be greater than the current session's start page (${currentSession.startPage})`
+        );
+        return;
+      }
+    }
+
     const lastFinishPage =
-      currentBook?.progress?.length > 0
-        ? currentBook.progress[currentBook.progress.length - 1].finishPage
-        : 0;
+      currentBook?.progress
+        ?.filter((session) => session.finishReading)
+        .reduce((max, session) => Math.max(max, session.finishPage || 0), 0) ||
+      0;
 
     if (currentPageValue <= lastFinishPage) {
-      toast.error(`Page must be greater than ${lastFinishPage}`);
+      setValidationError(
+        `Page must be greater than the last finished page (${lastFinishPage})`
+      );
       return;
     }
 
@@ -377,7 +455,7 @@ const Dashboard = ({
           setShowBookCompletedModal(true);
         }
       } catch (error) {
-        toast.error(error || "Failed to update reading session");
+        toast.error(error?.message || "Failed to update reading session");
       }
       return;
     }
@@ -406,7 +484,9 @@ const Dashboard = ({
         toast.success("Reading session started successfully");
       }
     } catch (error) {
-      toast.error(error || "Failed to update reading session");
+      const errorMessage = error?.message || "Failed to update reading session";
+      setValidationError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -425,7 +505,7 @@ const Dashboard = ({
 
       reset();
     } catch (error) {
-      toast.error(error || "Failed to add book to library");
+      toast.error(error?.message || "Failed to add book to library");
     }
   };
 
@@ -498,6 +578,7 @@ const Dashboard = ({
             star={star}
             externalFormControl={externalFormControl}
             validateCurrentPage={validateCurrentPage}
+            validationError={validationError}
           />
         );
       default:

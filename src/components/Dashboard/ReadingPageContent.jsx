@@ -26,6 +26,7 @@ const ReadingPageContent = ({
   star,
   externalFormControl,
   validateCurrentPage,
+  validationError,
 }) => {
   if (!currentBook) return null;
 
@@ -105,6 +106,17 @@ const ReadingPageContent = ({
                   </div>
                 )}
               </div>
+              {/* Display validation error */}
+              {validationError && (
+                <span className={styles.error}>{validationError}</span>
+              )}
+              {/* Display form errors */}
+              {(dirtyFields.currentPage || isSubmitted) &&
+                errors.currentPage && (
+                  <span className={styles.error}>
+                    {errors.currentPage.message}
+                  </span>
+                )}
             </div>
           </div>
         </div>
@@ -117,8 +129,11 @@ const ReadingPageContent = ({
           onClick={processSubmit(onSubmit, onError)}
           disabled={
             (currentBook?.status === "done" && !isReadingActive) ||
-            !isValid ||
-            !!errors.currentPage
+            (errors.currentPage &&
+              Object.keys(errors.currentPage).length > 0) ||
+            // Changed the validation check to allow re-submission when user fixes their input
+            // The button will be enabled as soon as the input changes to a valid value
+            false
           }
         >
           {isReadingActive ? "To stop" : "To start"}
