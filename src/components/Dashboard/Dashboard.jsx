@@ -144,12 +144,13 @@ const Dashboard = ({
           }
         : page === "reading"
         ? {
-            currentPage:
-              externalFormControl?.initialPage ||
-              (currentBook?.progress?.length > 0
-                ? currentBook.progress[currentBook.progress.length - 1]
-                    .finishPage + 1
-                : 1),
+            currentPage: isReadingActive
+              ? ""
+              : externalFormControl?.initialPage ||
+                (currentBook?.progress?.length > 0
+                  ? currentBook.progress[currentBook.progress.length - 1]
+                      .finishPage + 1
+                  : 1),
           }
         : {
             title: "",
@@ -171,6 +172,12 @@ const Dashboard = ({
 
   useEffect(() => {
     if (page === "reading" && currentBook) {
+      // If reading is active, leave the field empty
+      if (isReadingActive) {
+        setValue("currentPage", "");
+        return;
+      }
+
       const newValue =
         externalFormControl?.initialPage ||
         (currentBook.progress?.length > 0
@@ -179,7 +186,13 @@ const Dashboard = ({
 
       setValue("currentPage", isNaN(newValue) ? 1 : newValue);
     }
-  }, [currentBook, setValue, page, externalFormControl?.initialPage]);
+  }, [
+    currentBook,
+    setValue,
+    page,
+    externalFormControl?.initialPage,
+    isReadingActive,
+  ]);
 
   useEffect(() => {
     if (page === "reading" && currentBook?.progress?.length > 0) {
